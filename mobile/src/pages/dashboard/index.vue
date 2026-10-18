@@ -1,202 +1,402 @@
 <template>
-  <view class="page">
-    <view class="card summary">
-      <text class="muted">本月结余</text>
-      <text class="balance">{{ formatMoney(stats.balance) }}</text>
-      <view class="row">
-        <view class="col">
-          <text class="muted">收入</text>
-          <text class="income">{{ formatMoney(stats.totalIncome) }}</text>
+  <view class="page has-tabbar">
+    <view class="header">
+      <view class="title-row">
+        <text class="title">{{ monthName }}</text>
+        <text class="sticker">✦</text>
+      </view>
+      <text class="year mono">{{ year }}</text>
+    </view>
+
+    <!-- 本月概览：主色块 -->
+    <view class="overview">
+      <view class="tape"><text>⚡</text></view>
+      <text class="ov-label">本月结余</text>
+      <text class="ov-balance">¥ {{ fixed(stats.balance) }}</text>
+      <view class="ov-divider" />
+      <view class="ov-stats">
+        <view class="stat" @click="goBills('expense')">
+          <view class="stat-icon expense-bg"><ln-icon name="arrow-down-right" :size="32" color="#fff" :stroke="3" /></view>
+          <view>
+            <text class="stat-label">总支出</text>
+            <text class="stat-value">¥ {{ fixed(stats.totalExpense) }}</text>
+          </view>
         </view>
-        <view class="col">
-          <text class="muted">支出</text>
-          <text class="expense">{{ formatMoney(stats.totalExpense) }}</text>
+        <view class="stat" @click="goBills('income')">
+          <view class="stat-icon income-bg"><ln-icon name="arrow-up-right" :size="32" color="#fff" :stroke="3" /></view>
+          <view>
+            <text class="stat-label">总收入</text>
+            <text class="stat-value">¥ {{ fixed(stats.totalIncome) }}</text>
+          </view>
         </view>
       </view>
     </view>
 
-    <view class="card">
-      <view class="section-title">
-        <text>最近账单</text>
-        <text class="muted" @click="goBills">全部 ›</text>
+    <!-- 预算与财务目标：可左右滑动 -->
+    <view v-if="cards.length" class="cards">
+      <swiper class="swiper" :current="cardIndex" :indicator-dots="false" @change="cardIndex = $event.detail.current">
+        <swiper-item v-for="c in cards" :key="c.id">
+          <view class="progress-card" @click="go(c.url)">
+            <view class="pc-head">
+              <view class="pc-title">
+                <text class="pc-icon">{{ c.icon }}</text>
+                <view>
+                  <text class="pc-name">{{ c.title }}</text>
+                  <text class="pc-type mono">{{ c.typeLabel }}</text>
+                </view>
+              </view>
+              <text class="badge">{{ c.percent }}%</text>
+            </view>
+            <ln-progress :percent="c.percent" :color="c.color" />
+            <view class="pc-labels">
+              <text class="mono">{{ c.left }}</text>
+              <text class="mono">{{ c.right }}</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <view v-if="cards.length > 1" class="dots">
+        <view v-for="(c, i) in cards" :key="c.id" :class="['dot', { on: i === cardIndex }]" />
       </view>
+    </view>
+    <view v-else class="empty-card" @click="go('/pages/budget/index')">
+      <text class="empty-icon">📊</text>
+      <text class="empty-title">设置预算或财务目标来追踪进度</text>
+      <text class="empty-hint">点击前往设置 →</text>
+    </view>
+
+    <!-- 近期交易 -->
+    <view class="section">
+      <view class="section-head">
+        <view class="section-title"><text class="sticker-sm">📋</text><text class="st-text">近期交易</text></view>
+        <view class="all-btn" @click="goBills()"><text>查看全部</text><ln-icon name="arrow-right" :size="28" :stroke="3" /></view>
+      </view>
+
       <bill-item v-for="bill in recent" :key="bill.id" :bill="bill" @click="goDetail" />
-      <view v-if="!recent.length" class="muted empty">还没有账单，点击右下角记一笔</view>
-    </view>
 
-    <view class="card">
-      <view class="section-title">
-        <text>本期预算</text>
-        <text class="muted" @click="go('/pages/budget/index')">{{ budgets.length ? '全部 ›' : '' }}</text>
-      </view>
-      <view v-for="b in shownBudgets" :key="b.id" class="item">
-        <view class="item-head">
-          <text>{{ budgetLabel(b) }} · {{ b.name }}</text>
-          <text :class="b.isOverBudget ? 'expense' : 'muted'">{{ b.isOverBudget ? '已超支' : b.isAlert ? '接近上限' : '' }}</text>
-        </view>
-        <progress :percent="Math.min(b.percentage, 100)" :activeColor="b.isAlert ? '#e5484d' : '#4f6ef7'" stroke-width="6" />
-        <text class="muted">已用 {{ formatMoney(b.spent) }} / {{ formatMoney(b.amount) }}</text>
-      </view>
-      <view v-if="!budgets.length" class="muted empty" @click="go('/pages/budget/edit')">还没有预算，去设置一个 ›</view>
-    </view>
-
-    <view class="card">
-      <view class="section-title">
-        <text>财务目标</text>
-        <text class="muted" @click="go('/pages/goal/index')">{{ goals.length ? '全部 ›' : '' }}</text>
-      </view>
-      <view v-for="g in shownGoals" :key="g.id" class="item">
-        <view class="item-head">
-          <text>{{ g.icon || '🎯' }} {{ g.name }}</text>
-          <text :class="isOverdue(g.deadline) ? 'expense' : 'muted'">{{ deadlineText(g.deadline) }}</text>
-        </view>
-        <progress :percent="g.progress" activeColor="#16a34a" stroke-width="6" show-info />
-        <text class="muted">{{ formatMoney(g.currentAmount) }} / {{ formatMoney(g.targetAmount) }}</text>
-      </view>
-      <view v-if="goals.length && !shownGoals.length" class="muted empty">目标都完成了 🎉</view>
-      <view v-if="!goals.length" class="muted empty" @click="go('/pages/goal/edit')">还没有目标，去设置一个 ›</view>
-    </view>
-
-    <view class="card shortcuts">
-      <view v-for="s in SHORTCUTS" :key="s.label" class="shortcut" @click="s.action()">
-        <text class="shortcut-icon">{{ s.icon }}</text>
-        <text class="muted">{{ s.label }}</text>
+      <view v-if="loaded && !recent.length" class="empty-state">
+        <text class="empty-icon">📝</text>
+        <text class="empty-title">暂无交易记录</text>
+        <view class="btn btn-primary btn-sm" @click="goCreate">添加第一笔</view>
       </view>
     </view>
 
-    <view class="fab" @click="goCreate">＋</view>
+    <ln-tabbar current="dashboard" />
   </view>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { billApi, budgetApi, goalApi } from '@/api'
-import { useCategoryStore } from '@/stores/category'
-import { daysLeft, deadlineText, pickBudgets, pickGoals } from '@/utils/dashboard'
+import { pickBudgets, pickGoals } from '@/utils/dashboard'
 import { formatMoney, monthRange } from '@/utils/format'
 
-const categoryStore = useCategoryStore()
 const stats = ref({ balance: 0, totalIncome: 0, totalExpense: 0 })
 const recent = ref([])
 const budgets = ref([])
 const goals = ref([])
+const cardIndex = ref(0)
+const loaded = ref(false)
 
-const shownBudgets = computed(() => pickBudgets(budgets.value))
-const shownGoals = computed(() => pickGoals(goals.value))
+const now = new Date()
+const monthName = `${now.getMonth() + 1}月账本`
+const year = String(now.getFullYear())
+const money = (v) => formatMoney(v)
+// 概览卡按原项目的写法：不带千分位，保证金额不会因为太长而换行
+const fixed = (v) => Number(v || 0).toFixed(2)
 
-const budgetLabel = (b) => {
-  const c = b.categoryId && categoryStore.list.find((x) => x.id === b.categoryId)
-  return c ? `${c.icon || ''}${c.name}` : '总预算'
-}
-const isOverdue = (deadline) => daysLeft(deadline) < 0
+// 预算优先（实时数据），目标补充在后面；与原项目的"进度卡片"一致
+const cards = computed(() => {
+  const budgetCards = pickBudgets(budgets.value, 3).map((b) => ({
+    id: `budget-${b.id}`, url: '/pages/budget/index', icon: '📊', title: b.name, typeLabel: '预算',
+    percent: Math.min(Math.round(b.percentage), 100),
+    color: b.isOverBudget ? '#EF4444' : '#3B82F6',
+    left: `已用 ¥${money(b.spent)}`, right: `剩余 ¥${money(Math.max(0, b.remaining))}`,
+  }))
+  const goalCards = pickGoals(goals.value, 3).map((g) => ({
+    id: `goal-${g.id}`, url: '/pages/goal/index', icon: g.icon || '🎯', title: g.name, typeLabel: '目标',
+    percent: Math.round(g.progress), color: '#22C55E',
+    left: `已存 ¥${money(g.currentAmount)}`, right: `目标 ¥${money(g.targetAmount)}`,
+  }))
+  return [...budgetCards, ...goalCards]
+})
 
 // 各块数据互不依赖：某一块失败（请求层会弹提示）不影响其他块显示
 const safely = (promise, apply) => promise.then(apply).catch(() => {})
 
-function load() {
-  return Promise.all([
+async function load() {
+  await Promise.all([
     safely(billApi.statistics(monthRange()), (s) => { stats.value = s }),
     safely(billApi.list({ page: 1, limit: 5 }), (list) => { recent.value = list.items }),
     safely(budgetApi.progress(), (list) => { budgets.value = list }),
     safely(goalApi.list(), (list) => { goals.value = list }),
-    categoryStore.load().catch(() => {}),
   ])
+  loaded.value = true
+  if (cardIndex.value >= cards.value.length) cardIndex.value = 0
 }
 
-// 从记账页返回时刷新
 onShow(load)
+onPullDownRefresh(async () => {
+  await load()
+  uni.stopPullDownRefresh()
+})
 
 const go = (url) => uni.navigateTo({ url })
-const SHORTCUTS = [
-  { icon: '✏️', label: '记一笔', action: () => go('/pages/bills/create') },
-  { icon: '🤖', label: 'AI 记账', action: () => uni.switchTab({ url: '/pages/ai/chat' }) },
-  { icon: '💰', label: '预算', action: () => go('/pages/budget/index') },
-  { icon: '🎯', label: '目标', action: () => go('/pages/goal/index') },
-  { icon: '🗂️', label: '分类', action: () => go('/pages/category/index') },
-]
-
-const goCreate = () => uni.navigateTo({ url: '/pages/bills/create' })
-const goBills = () => uni.switchTab({ url: '/pages/bills/index' })
-const goDetail = (bill) => uni.navigateTo({ url: `/pages/bills/detail?id=${bill.id}` })
+const goCreate = () => go('/pages/bills/create')
+const goBills = (type) => go(`/pages/bills/index${type ? `?type=${type}` : ''}`)
+const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
 </script>
 
 <style lang="scss" scoped>
 .page {
-  padding-bottom: 200rpx; /* 避免最后一张卡片被右下角的悬浮按钮遮住 */
+  padding: calc(var(--status-bar-height) + 56rpx) 32rpx 0;
 }
-.summary {
-  background: $ln-primary;
-  color: #fff;
+.header {
+  margin-bottom: 48rpx;
+}
+.title-row {
   display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-  .muted,
-  .income,
-  .expense {
-    color: rgba(255, 255, 255, 0.85);
-  }
-}
-.balance {
-  font-size: 64rpx;
-  font-weight: 700;
-}
-.row {
-  display: flex;
-  margin-top: 16rpx;
-}
-.col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-.section-title {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  margin-bottom: 8rpx;
-}
-.empty {
-  padding: 48rpx 0;
-  text-align: center;
-}
-.item {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  padding: 12rpx 0 16rpx;
-}
-.item-head {
-  display: flex;
-  justify-content: space-between;
-}
-.shortcuts {
-  display: flex;
-  justify-content: space-around;
-}
-.shortcut {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8rpx;
+  gap: 16rpx;
 }
-.shortcut-icon {
-  font-size: 48rpx;
+.title {
+  font-size: 58rpx;
+  font-weight: 800;
+  letter-spacing: -1rpx;
 }
-.fab {
-  position: fixed;
-  right: 48rpx;
-  bottom: calc(48rpx + var(--window-bottom));
-  width: 112rpx;
-  height: 112rpx;
-  border-radius: 50%;
-  background: $ln-primary;
+.sticker {
+  font-size: 40rpx;
+  color: $ln-accent;
+}
+.year {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $ln-text-secondary;
+}
+
+/* 概览卡 */
+.overview {
+  position: relative;
+  padding: 40rpx;
+  margin-bottom: 48rpx;
   color: #fff;
-  font-size: 56rpx;
+  background: $ln-primary;
+  @include brutal-box($ln-r-lg, $ln-bw-thick);
+  @include brutal-shadow(12rpx);
+}
+.tape {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(79, 110, 247, 0.4);
+  width: 80rpx;
+  height: 80rpx;
+  font-size: 40rpx;
+  background: $ln-accent;
+  transform: rotate(12deg);
+  @include brutal-box($ln-r-sm, $ln-bw-thin);
+}
+.ov-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+.ov-balance {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 80rpx;
+  font-weight: 900;
+  letter-spacing: -3rpx;
+  line-height: 1.15;
+}
+.ov-divider {
+  height: $ln-bw-thin;
+  margin: 32rpx 0;
+  background: rgba(255, 255, 255, 0.3);
+}
+.ov-stats {
+  display: flex;
+  gap: 24rpx;
+}
+.stat {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx;
+  background: rgba(0, 0, 0, 0.15);
+  border: $ln-bw-thin solid rgba(255, 255, 255, 0.2);
+  border-radius: $ln-r-md;
+}
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 64rpx;
+  height: 64rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.4);
+  border-radius: $ln-r-sm;
+  &.expense-bg {
+    background: $ln-error;
+  }
+  &.income-bg {
+    background: $ln-success;
+  }
+}
+.stat-label {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+.stat-value {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* 进度卡片 */
+.cards {
+  margin-bottom: 16rpx;
+}
+.swiper {
+  height: 290rpx;
+}
+.progress-card {
+  height: 258rpx;
+  margin: 0 14rpx 0 0;
+  padding: 28rpx 32rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-lg);
+  @include brutal-shadow(8rpx);
+}
+.pc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.pc-title {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.pc-icon {
+  font-size: 44rpx;
+}
+.pc-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 800;
+}
+.pc-type {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: $ln-text-secondary;
+}
+.pc-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $ln-text-secondary;
+}
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 4rpx;
+}
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: $ln-card;
+  border: $ln-bw-thin solid $ln-stroke;
+  border-radius: 50%;
+  &.on {
+    background: $ln-accent;
+  }
+}
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx;
+  margin-bottom: 48rpx;
+  background: $ln-card;
+  border: $ln-bw dashed $ln-stroke;
+  border-radius: $ln-r-lg;
+}
+.empty-icon {
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+}
+.empty-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $ln-text-secondary;
+}
+.empty-hint {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $ln-primary;
+}
+
+/* 近期交易 */
+.section {
+  margin-top: 40rpx;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.sticker-sm {
+  font-size: 36rpx;
+}
+.st-text {
+  font-size: 40rpx;
+  font-weight: 800;
+}
+.all-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 24rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  background: $ln-card;
+  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include brutal-shadow(4rpx);
+  @include brutal-press(4rpx);
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  padding: 48rpx;
+  margin-right: 8rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-lg);
+  @include brutal-shadow(8rpx);
 }
 </style>

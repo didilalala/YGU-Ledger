@@ -92,3 +92,33 @@ test('全 0 数据也能正常画出', async () => {
   const { calls } = await draw('line', filled.categories, buildTrendSeries(filled))
   assert.ok(calls.includes('draw'))
 })
+
+import { ICONS, iconUri } from '../src/utils/icons.js'
+
+test('每个图标都能生成合法的 SVG data URI，颜色和线宽生效', () => {
+  for (const name of Object.keys(ICONS)) {
+    const uri = iconUri(name, '#FF0000', 3)
+    assert.ok(uri.startsWith('data:image/svg+xml;utf8,'), name)
+    const svg = decodeURIComponent(uri.slice('data:image/svg+xml;utf8,'.length))
+    assert.match(svg, /^<svg [^>]*viewBox="0 0 24 24"/, name)
+    assert.ok(svg.includes('stroke="#FF0000"') && svg.includes('stroke-width="3"') && svg.endsWith('</svg>'), name)
+    // 用了 CSS url("...") 包裹，数据里不能出现未编码的双引号
+    assert.ok(!uri.includes('"'), `${name} 含未编码的双引号`)
+  }
+  assert.equal(iconUri('不存在的图标'), null)
+})
+
+test('uCharts 能画出面积图（资产趋势）', async () => {
+  const { calls, texts } = await draw('area', ['8月', '9月', '10月'], [{ name: '资产', data: [70, 70, 19.5], color: '#3B82F6' }])
+  assert.ok(calls.includes('lineTo') && calls.includes('draw'))
+  assert.ok(texts.includes('8月') && texts.includes('10月'))
+})
+
+test('圆环中心文字：显示总计金额，且不再画图例', async () => {
+  const series = buildPieSeries([{ categoryName: '餐饮', amount: 70 }, { categoryName: '交通', amount: 30 }])
+  const { ctx, calls, texts } = fakeContext()
+  createChart(ctx, buildChartOptions({ type: 'ring', categories: [], series, width: 600, height: 600, pixelRatio: 2, animation: false, center: { title: '¥100', subtitle: '总计' } }))
+  for (let i = 0; i < 100 && !calls.includes('draw'); i++) await new Promise((r) => setTimeout(r, 20))
+  assert.ok(texts.includes('¥100') && texts.includes('总计'), `中心文字，实际：${texts}`)
+  assert.ok(!texts.includes('餐饮'), '有中心文字时图例由页面自己画')
+})

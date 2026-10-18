@@ -1,24 +1,29 @@
 <template>
-  <view>
-    <view v-for="c in configs" :key="c.id" class="card">
-      <view class="head">
-        <text class="name">{{ c.name }}</text>
-        <text v-if="c.isDefault" class="tag">默认</text>
+  <view class="page">
+    <ln-navbar title="AI 模型配置" />
+
+    <view class="panel">
+      <view class="panel-head"><text class="panel-icon">🤖</text><text class="panel-title">AI 模型配置</text></view>
+
+      <view v-for="c in configs" :key="c.id" class="cfg">
+        <view class="cfg-head">
+          <image v-if="providerLogo(c.provider)" class="logo" :src="providerLogo(c.provider)" mode="aspectFit" />
+          <text class="cfg-name">{{ c.name }}</text>
+          <text v-if="c.isDefault" class="default-tag">默认</text>
+        </view>
+        <text class="cfg-model">{{ c.model }}</text>
+        <text class="cfg-key mono">Key：{{ c.apiKeyMasked }}</text>
+        <view class="ops">
+          <view v-if="!c.isDefault" class="op blue" @click="setDefault(c)"><text>设为默认</text></view>
+          <view :class="['op blue', { busy: testing === c.id }]" @click="test(c)"><text>{{ testing === c.id ? '测试中…' : '测试' }}</text></view>
+          <view class="op blue" @click="edit(c.id)"><text>编辑</text></view>
+          <view class="op red" @click="remove(c)"><text>删除</text></view>
+        </view>
       </view>
-      <text class="muted line">{{ providerName(c.provider) }} · {{ c.model }}</text>
-      <text class="muted line">Key：{{ c.apiKeyMasked }}</text>
-      <view class="ops">
-        <text :class="{ busy: testing === c.id }" @click="test(c)">{{ testing === c.id ? '测试中…' : '测试连接' }}</text>
-        <text v-if="!c.isDefault" @click="setDefault(c)">设为默认</text>
-        <text @click="edit(c.id)">编辑</text>
-        <text class="danger" @click="remove(c)">删除</text>
-      </view>
-    </view>
-    <view v-if="loaded && !configs.length" class="card muted empty">
-      还没有配置 AI 模型，点击下方按钮添加后即可使用 AI 记账
-    </view>
-    <view class="actions">
-      <button class="primary" @click="edit()">添加模型</button>
+
+      <view v-if="loaded && !configs.length" class="empty-tip">还没有配置 AI 模型，添加后即可使用 AI 记账</view>
+
+      <view class="add-btn" @click="edit()"><ln-icon name="plus" :size="36" :stroke="3" /><text>添加模型配置</text></view>
     </view>
   </view>
 </template>
@@ -27,7 +32,7 @@
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { aiApi } from '@/api'
-import { providerName } from './providers'
+import { providerLogo } from './providers'
 
 const configs = ref([])
 const loaded = ref(false)
@@ -66,47 +71,104 @@ async function remove(c) {
 </script>
 
 <style lang="scss" scoped>
-.head {
+.panel {
+  padding: 32rpx;
+  margin: 32rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-lg);
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 28rpx;
+}
+.panel-icon {
+  font-size: 44rpx;
+}
+.panel-title {
+  font-size: 38rpx;
+  font-weight: 800;
+}
+.cfg {
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  background: $ln-bg;
+  @include brutal-box($ln-r-md, $ln-bw-thin);
+}
+.cfg-head {
   display: flex;
   align-items: center;
   gap: 16rpx;
 }
-.name {
-  font-size: 32rpx;
-  font-weight: 600;
+.logo {
+  width: 48rpx;
+  height: 48rpx;
 }
-.tag {
-  padding: 2rpx 14rpx;
-  font-size: 22rpx;
-  border-radius: 8rpx;
+.cfg-name {
+  font-size: 36rpx;
+  font-weight: 800;
+}
+.default-tag {
+  font-size: 24rpx;
+  font-weight: 800;
   color: $ln-primary;
-  background: rgba(79, 110, 247, 0.12);
 }
-.line {
+.cfg-model {
   display: block;
   margin-top: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: $ln-text-secondary;
+}
+.cfg-key {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: $ln-text-secondary;
 }
 .ops {
   display: flex;
-  gap: 40rpx;
+  flex-wrap: wrap;
+  gap: 16rpx;
   margin-top: 24rpx;
-  color: $ln-primary;
-  .danger {
-    color: $ln-expense;
+}
+.op {
+  padding: 8rpx 24rpx;
+  font-size: 28rpx;
+  font-weight: 800;
+  background: $ln-card;
+  border: $ln-bw-thin solid;
+  border-radius: $ln-r-sm;
+  &.blue {
+    color: $ln-primary;
+    border-color: $ln-stroke;
   }
-  .busy {
-    color: $ln-text-secondary;
+  &.red {
+    color: $ln-error;
+    border-color: $ln-stroke;
+  }
+  &.busy {
+    opacity: 0.5;
+  }
+  &:active {
+    background: $ln-accent;
   }
 }
-.empty {
-  text-align: center;
-  padding: 48rpx 32rpx;
-}
-.actions {
-  padding: 32rpx;
-}
-.primary {
-  background: $ln-primary;
-  color: #fff;
+.add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-height: 104rpx;
+  margin-top: 8rpx;
+  font-size: 32rpx;
+  font-weight: 800;
+  background: $ln-accent;
+  @include brutal-box($ln-r-md);
+  @include brutal-press(0rpx);
+  &:active {
+    background: #eab308;
+  }
 }
 </style>

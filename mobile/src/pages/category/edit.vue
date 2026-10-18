@@ -1,9 +1,10 @@
 <template>
-  <view>
-    <view class="card">
+  <view class="page">
+    <ln-navbar :title="id ? '编辑分类' : '添加分类'" />
+    <view class="form">
       <view class="form-field">
         <text class="label">类型</text>
-        <text class="muted">{{ form.type === 'expense' ? '支出' : '收入' }}{{ id ? '（不可修改）' : '' }}</text>
+        <view class="value readonly"><text>{{ form.type === 'expense' ? '支出' : '收入' }}{{ id ? '（不可修改）' : '' }}</text></view>
       </view>
       <view class="form-field">
         <text class="label">名称</text>
@@ -43,7 +44,6 @@ onLoad(async (query) => {
     return
   }
   id.value = Number(query.id)
-  uni.setNavigationBarTitle({ title: '编辑分类' })
   await store.load()
   const c = store.list.find((x) => x.id === id.value)
   if (!c || c.isDefault) return uni.navigateBack()

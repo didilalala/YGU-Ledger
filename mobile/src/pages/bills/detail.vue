@@ -1,21 +1,50 @@
 <template>
-  <view v-if="bill">
-    <view class="card head">
-      <text class="icon">{{ bill.category?.icon || '📝' }}</text>
-      <text class="muted">{{ bill.category?.name || '未分类' }}</text>
-      <text :class="['amount', bill.type]">{{ formatSignedMoney(bill.amount, bill.type) }}</text>
+  <view class="page">
+    <ln-navbar title="账单详情" />
+
+    <view v-if="bill" class="content">
+      <view class="amount-section">
+        <view class="icon-block" :style="{ background: categoryColor(bill.category?.name) }">
+          <text>{{ bill.category?.icon || fallbackIcon(bill.type) }}</text>
+        </view>
+        <text :class="['type-badge', bill.type]">{{ bill.type === 'income' ? '收入' : '支出' }}</text>
+        <text :class="['amount mono', bill.type]">¥ {{ Number(bill.amount).toFixed(2) }}</text>
+        <text class="cat-label">{{ bill.category?.name || '未分类' }}</text>
+      </view>
+
+      <view class="detail-card">
+        <view class="row">
+          <text class="label">分类</text>
+          <text class="value">{{ bill.category?.icon }} {{ bill.category?.name || '未分类' }}</text>
+        </view>
+        <view class="divider" />
+        <view class="row">
+          <text class="label">日期</text>
+          <text class="value mono">{{ bill.date }}</text>
+        </view>
+        <view class="divider" />
+        <view class="row">
+          <text class="label">备注</text>
+          <text class="value">{{ bill.description || '-' }}</text>
+        </view>
+        <view class="divider" />
+        <view class="row">
+          <text class="label">来源</text>
+          <text class="value">{{ SOURCE_LABELS[bill.source] || bill.source }}</text>
+        </view>
+        <template v-if="bill.tags?.length">
+          <view class="divider" />
+          <view class="row">
+            <text class="label">标签</text>
+            <view class="tags"><text v-for="t in bill.tags" :key="t" class="tag">{{ t }}</text></view>
+          </view>
+        </template>
+      </view>
     </view>
 
-    <view class="card">
-      <view class="row"><text class="muted">日期</text><text>{{ bill.date }}</text></view>
-      <view class="row"><text class="muted">备注</text><text>{{ bill.description || '-' }}</text></view>
-      <view class="row"><text class="muted">来源</text><text>{{ SOURCE_LABELS[bill.source] || bill.source }}</text></view>
-      <view v-if="bill.tags?.length" class="row"><text class="muted">标签</text><text>{{ bill.tags.join('、') }}</text></view>
-    </view>
-
-    <view class="actions">
-      <button class="primary" @click="edit">编辑</button>
-      <button type="warn" @click="remove">删除</button>
+    <view class="bottom-actions">
+      <view class="btn btn-primary" @click="edit">编辑</view>
+      <view class="btn del" @click="remove">删除</view>
     </view>
   </view>
 </template>
@@ -24,7 +53,7 @@
 import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { billApi } from '@/api'
-import { formatSignedMoney } from '@/utils/format'
+import { categoryColor, fallbackIcon } from '@/utils/category-style'
 
 const SOURCE_LABELS = { manual: '手动', voice: '语音', ocr: '拍照', text: 'AI 对话', notification: '支付通知' }
 
@@ -54,32 +83,125 @@ function remove() {
 </script>
 
 <style lang="scss" scoped>
-.head {
+.page {
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+}
+.content {
+  padding: 32rpx;
+}
+.amount-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
+  padding: 48rpx;
+  margin-bottom: 32rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-lg, $ln-bw-thin);
 }
-.icon {
-  font-size: 72rpx;
+.icon-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128rpx;
+  height: 128rpx;
+  margin-bottom: 24rpx;
+  font-size: 64rpx;
+  @include brutal-box($ln-r-md);
+}
+.type-badge {
+  padding: 4rpx 24rpx;
+  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  &.expense {
+    color: $ln-expense;
+    background: $ln-expense-bg;
+  }
+  &.income {
+    color: $ln-income;
+    background: $ln-income-bg;
+  }
 }
 .amount {
-  font-size: 56rpx;
+  margin-bottom: 16rpx;
+  font-size: 80rpx;
+  font-weight: 800;
+  letter-spacing: -2rpx;
+  &.expense {
+    color: $ln-expense;
+  }
+  &.income {
+    color: $ln-income;
+  }
+}
+.cat-label {
+  font-size: 28rpx;
   font-weight: 700;
+  color: $ln-text-secondary;
+}
+.detail-card {
+  overflow: hidden;
+  margin-right: 6rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-lg);
+  @include brutal-shadow(6rpx);
 }
 .row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 16rpx 0;
-}
-.actions {
+  gap: 32rpx;
   padding: 32rpx;
-  button + button {
-    margin-top: 24rpx;
+}
+.label {
+  flex-shrink: 0;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $ln-text-secondary;
+}
+.value {
+  font-size: 28rpx;
+  font-weight: 700;
+  text-align: right;
+}
+.divider {
+  height: $ln-bw-thin;
+  margin: 0 32rpx;
+  background: $ln-stroke;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12rpx;
+}
+.tag {
+  padding: 4rpx 16rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  background: $ln-accent;
+  @include brutal-box(12rpx, 3rpx);
+}
+.bottom-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  gap: 24rpx;
+  padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+  background: $ln-card;
+  border-top: $ln-bw-thin solid $ln-stroke;
+  .btn {
+    flex: 1;
   }
-  .primary {
-    background: $ln-primary;
-    color: #fff;
+  .del {
+    color: $ln-error;
+    background: rgba(239, 68, 68, 0.08);
+    border-color: $ln-error;
+    box-shadow: none;
   }
 }
 </style>

@@ -1,41 +1,51 @@
 <template>
- <view>
-  <view class="form card">
-    <view class="field">
-      <text class="label">服务商</text>
-      <picker :range="PROVIDERS" range-key="label" :value="providerIndex" @change="onProvider">
-        <view class="value">{{ PROVIDERS[providerIndex].label }} ›</view>
-      </picker>
+  <view class="page">
+    <ln-navbar :title="id ? '编辑模型配置' : '添加模型配置'" />
+
+    <view class="form">
+      <view class="form-field">
+        <text class="label">服务商</text>
+        <view class="providers">
+          <view v-for="p in PROVIDERS" :key="p.value" :class="['provider', { selected: form.provider === p.value }]" @click="onProvider(p)">
+            <image class="p-logo" :src="p.logo" mode="aspectFit" />
+            <text class="p-name">{{ p.label }}</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-field">
+        <text class="label">名称</text>
+        <input v-model="form.name" placeholder="如：我的 Claude" />
+      </view>
+      <view class="form-field">
+        <text class="label">API Key</text>
+        <input v-model="form.apiKey" password :placeholder="id ? `${masked}（不修改请留空）` : '请输入 API Key'" />
+      </view>
+      <view class="form-field">
+        <text class="label">API 地址（可选）</text>
+        <input v-model="form.apiBaseUrl" placeholder="留空使用官方地址（需含 /v1 等路径）" />
+      </view>
+      <view class="form-field">
+        <text class="label">模型</text>
+        <input v-model="form.model" placeholder="模型名称" />
+      </view>
+      <view class="form-field row">
+        <view>
+          <text class="label">支持图片识别</text>
+          <text class="hint">此服务商支持图片</text>
+        </view>
+        <switch :checked="form.supportsVision" color="#3B82F6" @change="form.supportsVision = $event.detail.value" />
+      </view>
     </view>
-    <view class="field">
-      <text class="label">名称</text>
-      <input v-model="form.name" placeholder="如：我的 DeepSeek" />
-    </view>
-    <view class="field">
-      <text class="label">模型</text>
-      <input v-model="form.model" placeholder="模型名称" />
-    </view>
-    <view class="field">
-      <text class="label">API Key</text>
-      <input v-model="form.apiKey" password :placeholder="id ? `${masked}（不修改请留空）` : '粘贴你的 API Key'" />
-    </view>
-    <view class="field">
-      <text class="label">API 地址</text>
-      <input v-model="form.apiBaseUrl" placeholder="可选，留空使用官方地址（需含 /v1 等路径）" />
-    </view>
-    <view class="field">
-      <text class="label">支持图片识别</text>
-      <switch :checked="form.supportsVision" color="#4f6ef7" @change="form.supportsVision = $event.detail.value" />
+
+    <view class="bottom-actions">
+      <view class="btn" @click="back">取消</view>
+      <view :class="['btn btn-primary', { disabled: saving }]" @click="save">{{ saving ? '保存中…' : '保存' }}</view>
     </view>
   </view>
-  <view class="actions">
-    <button class="primary" :disabled="saving" @click="save">{{ saving ? '保存中…' : '保存' }}</button>
-  </view>
- </view>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { aiApi } from '@/api'
 import { PROVIDERS } from './providers'
@@ -51,12 +61,10 @@ const form = reactive({
   apiBaseUrl: '',
   supportsVision: PROVIDERS[0].vision,
 })
-const providerIndex = computed(() => Math.max(0, PROVIDERS.findIndex((p) => p.value === form.provider)))
 
-function onProvider(e) {
-  const p = PROVIDERS[e.detail.value]
+function onProvider(p) {
   // 名称、模型还是预设值时才跟着换，用户改过的不覆盖
-  const old = PROVIDERS[providerIndex.value]
+  const old = PROVIDERS.find((x) => x.value === form.provider)
   if (!form.model || form.model === old.model) form.model = p.model
   if (!form.name || form.name === old.label) form.name = p.label
   form.provider = p.value
@@ -69,7 +77,6 @@ onLoad(async (query) => {
     return
   }
   id.value = Number(query.id)
-  uni.setNavigationBarTitle({ title: '编辑模型' })
   const c = (await aiApi.configs()).find((x) => x.id === id.value)
   if (!c) return uni.navigateBack()
   masked.value = c.apiKeyMasked
@@ -79,7 +86,10 @@ onLoad(async (query) => {
   })
 })
 
+const back = () => uni.navigateBack()
+
 async function save() {
+  if (saving.value) return
   const data = {
     provider: form.provider,
     name: form.name.trim(),
@@ -105,32 +115,50 @@ async function save() {
 </script>
 
 <style lang="scss" scoped>
-.field {
+.page {
+  padding-bottom: calc(200rpx + env(safe-area-inset-bottom));
+}
+.providers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.provider {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12rpx;
+  padding: 16rpx 24rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  &.selected {
+    background: $ln-accent;
+    border-width: $ln-bw;
+  }
+}
+.p-logo {
+  width: 44rpx;
+  height: 44rpx;
+}
+.p-name {
+  font-size: 28rpx;
+  font-weight: 800;
+}
+.bottom-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
   gap: 24rpx;
-  padding: 24rpx 0;
-  border-bottom: 1rpx solid $ln-border;
-  &:last-child {
-    border-bottom: none;
-  }
-  input {
+  padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+  background: $ln-bg;
+  border-top: $ln-bw-thin solid $ln-stroke;
+  .btn {
     flex: 1;
-    text-align: right;
+    &.disabled {
+      opacity: 0.6;
+    }
   }
-}
-.label {
-  flex-shrink: 0;
-}
-.value {
-  color: $ln-primary;
-}
-.actions {
-  padding: 32rpx;
-}
-.primary {
-  background: $ln-primary;
-  color: #fff;
 }
 </style>

@@ -19,55 +19,166 @@ export default {
 </script>
 
 <style lang="scss">
-/* 全局样式 */
+/* ========== 全局样式（Neo-Brutalism，复刻原项目） ========== */
 page {
   background-color: $ln-bg;
   color: $ln-text;
+  font-family: $ln-font;
   font-size: 28rpx;
 }
 
+view,
+text,
+input,
+button,
+scroll-view,
+swiper,
+image,
+picker {
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* 带底部导航的页面：给自绘 tabbar 留出空间 */
+.has-tabbar {
+  padding-bottom: calc(190rpx + env(safe-area-inset-bottom));
+}
+
+/* 卡片：白底 + 粗黑描边 + 实心偏移阴影 */
 .card {
   background: $ln-card;
-  border-radius: 24rpx;
   padding: 32rpx;
-  margin: 24rpx 32rpx;
+  margin: 24rpx 32rpx 36rpx;
+  @include brutal-box($ln-r-lg);
+  @include brutal-shadow(8rpx);
 }
 
-/* 表单页公共样式：一行一个字段，左标签右输入 */
+/* 表单页：字段直接放在背景上，不套卡片 */
+.form {
+  padding: 16rpx 32rpx 0;
+}
+
 .form-field {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24rpx;
-  padding: 24rpx 0;
-  border-bottom: 1rpx solid $ln-border;
-  &:last-child {
-    border-bottom: none;
-  }
+  flex-direction: column;
+  gap: 14rpx;
+  padding: 14rpx 0;
   .label {
-    flex-shrink: 0;
+    display: block;
+    font-size: 28rpx;
+    font-weight: 800;
   }
-  input {
-    flex: 1;
-    text-align: right;
+  picker {
+    display: block;
+    width: 100%;
+  }
+  input,
+  .value {
+    width: 100%;
+    min-height: 96rpx;
+    padding: 0 28rpx;
+    display: flex;
+    align-items: center;
+    font-size: 30rpx;
+    font-weight: 700;
+    color: $ln-text;
+    background: $ln-card;
+    @include brutal-box($ln-r-md);
   }
   .value {
-    color: $ln-primary;
+    justify-content: space-between;
+    color: $ln-text;
+    &.readonly {
+      color: $ln-text-secondary;
+      background: $ln-border;
+      border-color: $ln-text-quaternary;
+    }
+  }
+  /* 开关等"标签在左、控件在右"的行 */
+  &.row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .hint {
+    display: block;
+    margin-top: 4rpx;
+    font-size: 24rpx;
+    color: $ln-text-secondary;
   }
 }
 
-.form-actions {
-  padding: 32rpx;
-  button + button {
-    margin-top: 24rpx;
+/* 按钮：粗描边 + 实心阴影，按下时压到阴影上 */
+.btn,
+.form-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-height: 96rpx;
+  margin: 0;
+  padding: 0 40rpx;
+  font-size: 32rpx;
+  font-weight: 800;
+  line-height: 1;
+  color: $ln-text;
+  background: $ln-card;
+  @include brutal-box($ln-r-md);
+  @include brutal-shadow(6rpx);
+  @include brutal-press(6rpx);
+  &::after {
+    display: none; /* uni 的 button 自带一圈边框，去掉 */
   }
-  .primary {
-    background: $ln-primary;
-    color: #fff;
+  &[disabled] {
+    color: $ln-text-secondary;
+    background: $ln-border;
+    box-shadow: none;
+  }
+}
+.btn-primary,
+.form-actions .primary {
+  color: #fff;
+  background: $ln-primary;
+}
+.btn-accent {
+  background: $ln-accent;
+}
+.btn-sm {
+  min-height: 64rpx;
+  padding: 0 28rpx;
+  font-size: 26rpx;
+  border-radius: $ln-r-sm;
+  border-width: $ln-bw-thin;
+  box-shadow: 4rpx 4rpx 0 $ln-stroke;
+}
+.form-actions {
+  padding: 32rpx 32rpx 48rpx;
+  button + button {
+    margin-top: 32rpx;
   }
   .danger {
-    background: #fff;
+    color: $ln-error;
+    background: $ln-card;
+  }
+}
+
+/* 徽章：小块的描边标签，如金额、百分比 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 20rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  font-family: $ln-mono;
+  background: $ln-accent;
+  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  &.income {
+    color: $ln-income;
+    background: $ln-income-bg;
+  }
+  &.expense {
     color: $ln-expense;
+    background: $ln-expense-bg;
   }
 }
 
@@ -82,5 +193,16 @@ page {
 .muted {
   color: $ln-text-secondary;
   font-size: 24rpx;
+}
+
+.mono {
+  font-family: $ln-mono;
+}
+
+.empty-tip {
+  padding: 64rpx 0;
+  text-align: center;
+  color: $ln-text-secondary;
+  font-weight: 700;
 }
 </style>

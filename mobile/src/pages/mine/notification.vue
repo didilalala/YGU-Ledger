@@ -1,34 +1,45 @@
 <template>
-  <view>
-    <view class="card">
-      <view class="row">
-        <text>通知使用权</text>
-        <text :class="enabled ? 'income' : 'expense'">{{ enabled ? '已开启' : '未开启' }}</text>
-      </view>
-      <button v-if="!enabled" size="mini" @click="openSettings">去开启</button>
-      <text class="muted tip">
-        开启后，LiteNote 会读取微信、支付宝的支付通知并自动记账。通知内容只在本机解析。
-        部分手机还需要在电池设置中允许 LiteNote 后台运行，否则可能漏记。
-      </text>
-    </view>
+  <view class="page">
+    <ln-navbar title="通知自动记账" />
 
-    <view class="card">
-      <view class="row">
-        <text>自动记账</text>
-        <switch :checked="listening" :disabled="!enabled" @change="toggle" />
+    <view class="panel">
+      <view class="p-head">
+        <view class="p-icon"><ln-icon name="bell" :size="44" /></view>
+        <view class="p-text">
+          <text class="p-title">支付自动记账</text>
+          <text class="p-sub">开启后，微信/支付宝支付时自动弹出记账确认窗口</text>
+        </view>
       </view>
+      <view class="line" />
+
+      <view class="perm">
+        <text class="perm-label">通知监听权限</text>
+        <text :class="['status', enabled ? 'on' : 'off']">{{ enabled ? '✓ 已开启' : '未开启' }}</text>
+        <view class="mini" @click="refresh"><text>刷新</text></view>
+      </view>
+      <view v-if="!enabled" class="open-btn btn btn-accent btn-sm" @click="openSettings">去系统设置开启</view>
+      <view class="line" />
+
+      <view class="perm">
+        <view class="grow">
+          <text class="perm-label">自动记账</text>
+          <text class="hint">识别到支付通知时先弹窗确认，再入账</text>
+        </view>
+        <switch :checked="listening" :disabled="!enabled" color="#3B82F6" @change="toggle" />
+      </view>
+      <text class="tip">通知内容只在本机解析。部分手机还需要在电池设置中允许 LiteNote 后台运行，否则可能漏记。</text>
     </view>
 
     <!-- 仅开发模式：不过滤包名、不经过解析器，显示收到的每一条通知，用于验证插件链路和收集真实通知文本 -->
-    <view v-if="isDev" class="card">
-      <text class="title">原始通知（调试）</text>
-      <view v-if="!rawLogs.length" class="muted log">暂无。开启自动记账后，任何应用的通知都会出现在这里</view>
-      <view v-for="(log, i) in rawLogs" :key="i" class="muted log">{{ log }}</view>
+    <view v-if="isDev" class="panel">
+      <text class="log-title">原始通知（调试）</text>
+      <view v-if="!rawLogs.length" class="log muted">暂无。开启自动记账后，任何应用的通知都会出现在这里</view>
+      <view v-for="(log, i) in rawLogs" :key="i" class="log mono">{{ log }}</view>
     </view>
 
-    <view v-if="logs.length" class="card">
-      <text class="title">最近识别</text>
-      <view v-for="(log, i) in logs" :key="i" class="muted log">{{ log }}</view>
+    <view v-if="logs.length" class="panel">
+      <text class="log-title">最近识别</text>
+      <view v-for="(log, i) in logs" :key="i" class="log mono">{{ log }}</view>
     </view>
   </view>
 </template>
@@ -62,10 +73,11 @@ const off = onAutoRecordEvent((evt) => {
 })
 onUnmounted(off)
 
-onShow(() => {
+function refresh() {
   enabled.value = hasListenerPermission()
   listening.value = isAutoRecordRunning()
-})
+}
+onShow(refresh)
 
 function openSettings() {
   // #ifdef APP-ANDROID
@@ -85,21 +97,108 @@ function toggle(e) {
 </script>
 
 <style lang="scss" scoped>
-.row {
+.panel {
+  padding: 32rpx;
+  margin: 32rpx;
+  background: $ln-card;
+  @include brutal-box($ln-r-lg);
+}
+.p-head {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
+  gap: 24rpx;
+}
+.p-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 96rpx;
+  height: 96rpx;
+  background: $ln-accent;
+  @include brutal-box($ln-r-md, $ln-bw-thin);
+}
+.p-title {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 800;
+}
+.p-sub {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 26rpx;
+  color: $ln-text-secondary;
+}
+.line {
+  height: $ln-bw-thin;
+  margin: 28rpx 0;
+  background: $ln-stroke;
+}
+.perm {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.perm-label {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+.grow {
+  flex: 1;
+}
+.hint {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: $ln-text-secondary;
+}
+.status {
+  padding: 6rpx 20rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  border: $ln-bw-thin solid $ln-stroke;
+  border-radius: $ln-r-sm;
+  &.on {
+    color: #fff;
+    background: $ln-success;
+  }
+  &.off {
+    color: $ln-expense;
+    background: $ln-expense-bg;
+  }
+}
+.mini {
+  margin-left: auto;
+  padding: 10rpx 28rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  background: $ln-card;
+  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  &:active {
+    background: $ln-accent;
+  }
+}
+.open-btn {
+  margin-top: 20rpx;
 }
 .tip {
   display: block;
-  margin-top: 16rpx;
+  margin-top: 20rpx;
+  font-size: 24rpx;
   line-height: 1.6;
+  color: $ln-text-secondary;
 }
-.title {
-  font-weight: 600;
+.log-title {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 32rpx;
+  font-weight: 800;
 }
 .log {
-  padding: 8rpx 0;
+  padding: 12rpx 0;
+  font-size: 24rpx;
+  border-bottom: 2rpx solid $ln-border;
+  word-break: break-all;
 }
 </style>

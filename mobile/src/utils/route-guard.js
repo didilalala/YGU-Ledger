@@ -4,7 +4,7 @@
  */
 import { storage, STORAGE_KEYS } from './storage'
 
-const PUBLIC_PAGES = ['/pages/auth/login', '/pages/auth/register']
+const PUBLIC_PAGES = ['/pages/auth/login']
 
 function needLogin(url) {
   const path = url.split('?')[0]

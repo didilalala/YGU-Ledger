@@ -72,8 +72,11 @@ export const hasData = (filled) => [...filled.income, ...filled.expense].some((v
 /**
  * 生成 uCharts 的构造参数。
  * width / height 是绘图缓冲区的像素大小（= 显示尺寸 × pixelRatio），与组件里的 canvas 缩放配合使用。
+ * ⚠️ uCharts 内部会把字号、线宽、间距、内边距统一乘以 pixelRatio，所以这里的长度都写"显示像素"，不要再预先乘一次。
+ *
+ * @param {{title?: string, subtitle?: string}} [center] 圆环中心的文字（如总计金额）
  */
-export function buildChartOptions({ type, categories, series, width, height, pixelRatio = 1, animation = true }) {
+export function buildChartOptions({ type, categories, series, width, height, pixelRatio = 1, animation = true, center = null }) {
   const base = {
     type,
     width,
@@ -84,30 +87,40 @@ export function buildChartOptions({ type, categories, series, width, height, pix
     background: '#FFFFFF',
     categories,
     series,
-    padding: [15, 15, 5, 5].map((v) => v * pixelRatio),
-    legend: { show: type !== 'pie' && type !== 'ring', position: 'top', float: 'right' },
-    fontSize: 11 * pixelRatio,
+    padding: [15, 15, 5, 5],
+    legend: { show: type !== 'pie' && type !== 'ring' && series.length > 1, position: 'top', float: 'right' },
+    fontSize: 11,
     enableScroll: false,
   }
   if (type === 'ring' || type === 'pie') {
     return {
       ...base,
-      padding: [5, 5, 5, 5].map((v) => v * pixelRatio),
-      legend: { show: true, position: 'bottom', float: 'center', itemGap: 12 * pixelRatio },
-      dataLabel: true,
-      extra: { ring: { ringWidth: 28 * pixelRatio, linearType: 'none', border: true, borderWidth: 2 * pixelRatio, borderColor: '#FFFFFF', labelWidth: 12 * pixelRatio }, pie: { border: true, borderWidth: 2 * pixelRatio, borderColor: '#FFFFFF', labelWidth: 12 * pixelRatio } },
+      ...(center && type === 'ring'
+        ? {
+            title: { name: center.title, fontSize: 14, color: '#1A1A1A', offsetY: -4 },
+            subtitle: { name: center.subtitle || '', fontSize: 10, color: '#737373', offsetY: 8 },
+          }
+        : {}),
+      padding: [5, 5, 5, 5],
+      legend: { show: !center, position: 'bottom', float: 'center', itemGap: 12 },
+      dataLabel: !center,
+      extra: {
+        ring: { ringWidth: 20, linearType: 'none', border: true, borderWidth: 2, borderColor: '#FFFFFF', labelWidth: 12 },
+        pie: { border: true, borderWidth: 2, borderColor: '#FFFFFF', labelWidth: 12 },
+      },
       color: COLORS.palette,
     }
   }
   return {
     ...base,
     dataLabel: false,
-    dataPointShape: type === 'line',
-    xAxis: { disableGrid: true, labelCount: 7, fontSize: 11 * pixelRatio, boundaryGap: type === 'column' ? 'justify' : 'center' },
-    yAxis: { gridType: 'dash', dashLength: 4 * pixelRatio, gridColor: '#e8e9ee', splitNumber: 4, data: [{ min: 0, fontSize: 11 * pixelRatio }] },
+    dataPointShape: type === 'line' || type === 'area',
+    xAxis: { disableGrid: true, labelCount: 6, fontSize: 11, boundaryGap: type === 'column' ? 'justify' : 'center' },
+    yAxis: { gridType: 'dash', dashLength: 4, gridColor: '#e8e9ee', splitNumber: 4, data: [{ min: 0, fontSize: 11 }] },
     extra: {
-      line: { type: 'curve', width: 2 * pixelRatio, activeType: 'hollow' },
-      column: { type: 'group', width: 10 * pixelRatio, seriesGap: 2 * pixelRatio, barBorderRadius: [3 * pixelRatio, 3 * pixelRatio, 0, 0] },
+      line: { type: 'curve', width: 2, activeType: 'hollow' },
+      area: { type: 'curve', opacity: 0.3, addLine: true, width: 3, gradient: true },
+      column: { type: 'group', width: 10, seriesGap: 2, barBorderRadius: [3, 3, 0, 0] },
     },
   }
 }

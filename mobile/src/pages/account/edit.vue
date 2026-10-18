@@ -1,6 +1,7 @@
 <template>
-  <view>
-    <view class="card">
+  <view class="page">
+    <ln-navbar :title="id ? '编辑账户' : '添加账户'" />
+    <view class="form">
       <view class="form-field">
         <text class="label">名称</text>
         <input v-model="form.name" placeholder="如：工商银行储蓄卡" maxlength="30" />
@@ -19,7 +20,7 @@
         <text class="label">图标</text>
         <input v-model="form.icon" :placeholder="ACCOUNT_TYPES[typeIndex].icon" maxlength="4" />
       </view>
-      <view class="form-field">
+      <view class="form-field row">
         <text class="label">设为默认账户</text>
         <switch :checked="form.isDefault" color="#4f6ef7" @change="form.isDefault = $event.detail.value" />
       </view>
@@ -51,7 +52,6 @@ const onType = (e) => { form.type = ACCOUNT_TYPES[e.detail.value].value }
 onLoad(async (query) => {
   if (!query.id) return
   id.value = Number(query.id)
-  uni.setNavigationBarTitle({ title: '编辑账户' })
   const a = (await accountApi.list()).find((x) => x.id === id.value)
   if (!a) return uni.navigateBack()
   Object.assign(form, { name: a.name, type: a.type, balance: String(a.balance), icon: a.icon || '', isDefault: a.isDefault })

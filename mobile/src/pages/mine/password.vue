@@ -1,6 +1,7 @@
 <template>
-  <view>
-    <view class="card">
+  <view class="page">
+    <ln-navbar :title="'修改密码'" />
+    <view class="form">
       <view class="form-field">
         <text class="label">原密码</text>
         <input v-model="form.oldPassword" password placeholder="请输入原密码" />

@@ -16,6 +16,8 @@ const props = defineProps({
   /** 显示宽高，单位 rpx；默认宽度刚好撑满带内边距的卡片 */
   widthRpx: { type: Number, default: 622 },
   heightRpx: { type: Number, default: 480 },
+  /** 圆环中心的文字，如 { title: '¥4550', subtitle: '总计' } */
+  center: { type: Object, default: null },
 })
 
 const canvasId = `ln-chart-${Math.random().toString(36).slice(2, 9)}`
@@ -45,12 +47,13 @@ function draw() {
     width: width.value * pixelRatio,
     height: height.value * pixelRatio,
     pixelRatio,
+    center: props.center,
   }))
 }
 
 // canvas 节点渲染完成后再画；App 端偶尔需要再等一帧
 onMounted(() => nextTick(() => setTimeout(draw, 30)))
-watch(() => [props.type, props.series, props.categories], () => nextTick(draw), { deep: true })
+watch(() => [props.type, props.series, props.categories, props.center], () => nextTick(draw), { deep: true })
 onBeforeUnmount(() => chart?.animationInstance?.stop?.())
 </script>
 

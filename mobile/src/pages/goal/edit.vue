@@ -1,6 +1,7 @@
 <template>
-  <view>
-    <view class="card">
+  <view class="page">
+    <ln-navbar :title="id ? '编辑目标' : '新建目标'" />
+    <view class="form">
       <view class="form-field">
         <text class="label">名称</text>
         <input v-model="form.name" placeholder="如：旅行基金" />
@@ -26,7 +27,7 @@
           <text v-if="form.deadline" class="muted clear" @click="form.deadline = ''">清除</text>
         </view>
       </view>
-      <view class="form-field">
+      <view class="form-field row">
         <text class="label">已完成</text>
         <switch :checked="form.isCompleted" color="#16a34a" @change="form.isCompleted = $event.detail.value" />
       </view>
@@ -50,7 +51,6 @@ const form = reactive({ name: '', icon: '', targetAmount: '', currentAmount: '',
 onLoad(async (query) => {
   if (!query.id) return
   id.value = Number(query.id)
-  uni.setNavigationBarTitle({ title: '编辑目标' })
   const g = (await goalApi.list()).find((x) => x.id === id.value)
   if (!g) return uni.navigateBack()
   Object.assign(form, { name: g.name, icon: g.icon || '', targetAmount: String(g.targetAmount),

@@ -7,13 +7,13 @@
 	},
 	"pages": [
 		{ "path": "pages/dashboard/index", "style": { "navigationBarTitleText": "LiteNote" } },
-		{ "path": "pages/bills/index", "style": { "navigationBarTitleText": "账单", "enablePullDownRefresh": true } },
-		{ "path": "pages/ai/chat", "style": { "navigationBarTitleText": "AI 记账" } },
-		{ "path": "pages/reports/index", "style": { "navigationBarTitleText": "报表" } },
+		{ "path": "pages/reports/index", "style": { "navigationBarTitleText": "统计" } },
+		{ "path": "pages/ai/chat", "style": { "navigationBarTitleText": "AI 助手" } },
 		{ "path": "pages/mine/index", "style": { "navigationBarTitleText": "我的" } },
 
+		{ "path": "pages/bills/index", "style": { "navigationBarTitleText": "全部账单", "enablePullDownRefresh": true } },
+
 		{ "path": "pages/auth/login", "style": { "navigationBarTitleText": "登录", "navigationStyle": "custom" } },
-		{ "path": "pages/auth/register", "style": { "navigationBarTitleText": "注册" } },
 		{ "path": "pages/bills/create", "style": { "navigationBarTitleText": "记一笔" } },
 		{ "path": "pages/bills/detail", "style": { "navigationBarTitleText": "账单详情" } },
 		{ "path": "pages/ai/sessions", "style": { "navigationBarTitleText": "历史会话" } },
@@ -32,21 +32,22 @@
 		{ "path": "pages/mine/notification", "style": { "navigationBarTitleText": "通知自动记账" } }
 	],
 	"tabBar": {
-		"color": "#8a8f99",
-		"selectedColor": "#4f6ef7",
+		"color": "#737373",
+		"selectedColor": "#1a1a1a",
 		"backgroundColor": "#ffffff",
+		"borderStyle": "black",
 		"list": [
 			{ "pagePath": "pages/dashboard/index", "text": "首页" },
-			{ "pagePath": "pages/bills/index", "text": "账单" },
-			{ "pagePath": "pages/ai/chat", "text": "AI" },
-			{ "pagePath": "pages/reports/index", "text": "报表" },
+			{ "pagePath": "pages/reports/index", "text": "统计" },
+			{ "pagePath": "pages/ai/chat", "text": "AI助手" },
 			{ "pagePath": "pages/mine/index", "text": "我的" }
 		]
 	},
 	"globalStyle": {
+		"navigationStyle": "custom",
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "LiteNote",
-		"navigationBarBackgroundColor": "#f5f6fa",
-		"backgroundColor": "#f5f6fa"
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#fef9ef"
 	}
 }

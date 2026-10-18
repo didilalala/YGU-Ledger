@@ -1,17 +1,20 @@
 <template>
-  <view>
-    <view class="card">
-      <view class="form-field" @click="chooseAvatar">
+  <view class="page">
+    <ln-navbar :title="'个人资料'" />
+    <view class="form">
+      <view class="form-field avatar-field" @click="chooseAvatar">
         <text class="label">头像</text>
         <view class="avatar-wrap">
-          <image v-if="userStore.user?.avatar" class="avatar" :src="userStore.user.avatar" mode="aspectFill" />
-          <view v-else class="avatar placeholder">{{ userStore.displayName.slice(0, 1) }}</view>
-          <text class="muted">{{ uploading ? '上传中…' : '›' }}</text>
+          <view class="avatar-box">
+            <image v-if="userStore.user?.avatar" class="avatar" :src="userStore.user.avatar" mode="aspectFill" />
+            <ln-icon v-else name="user" :size="56" />
+          </view>
+          <text class="avatar-tip">{{ uploading ? '上传中…' : '点击更换头像' }}</text>
         </view>
       </view>
       <view class="form-field">
         <text class="label">用户名</text>
-        <text class="muted">{{ userStore.user?.username }}</text>
+        <view class="value readonly"><text>{{ userStore.user?.username }}</text></view>
       </view>
       <view class="form-field">
         <text class="label">昵称</text>
@@ -84,19 +87,25 @@ async function save() {
 .avatar-wrap {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 24rpx;
+}
+.avatar-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 144rpx;
+  height: 144rpx;
+  overflow: hidden;
+  background: $ln-accent;
+  @include brutal-box($ln-r-md);
 }
 .avatar {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 50%;
-  &.placeholder {
-    background: $ln-primary;
-    color: #fff;
-    font-size: 44rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  width: 100%;
+  height: 100%;
+}
+.avatar-tip {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: $ln-primary;
 }
 </style>

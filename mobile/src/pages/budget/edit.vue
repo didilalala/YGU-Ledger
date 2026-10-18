@@ -1,6 +1,7 @@
 <template>
-  <view>
-    <view class="card">
+  <view class="page">
+    <ln-navbar :title="id ? '编辑预算' : '新建预算'" />
+    <view class="form">
       <view class="form-field">
         <text class="label">名称</text>
         <input v-model="form.name" placeholder="如：餐饮预算" />
@@ -25,7 +26,7 @@
         <text class="label">超过多少 % 时提醒</text>
         <input v-model="form.alertAt" type="number" placeholder="1-100" />
       </view>
-      <view class="form-field">
+      <view class="form-field row">
         <text class="label">启用</text>
         <switch :checked="form.isActive" color="#4f6ef7" @change="form.isActive = $event.detail.value" />
       </view>
@@ -63,7 +64,6 @@ onLoad(async (query) => {
   await categoryStore.load()
   if (!query.id) return
   id.value = Number(query.id)
-  uni.setNavigationBarTitle({ title: '编辑预算' })
   const b = (await budgetApi.list()).find((x) => x.id === id.value)
   if (!b) return uni.navigateBack()
   Object.assign(form, { name: b.name, amount: String(b.amount), period: b.period,
