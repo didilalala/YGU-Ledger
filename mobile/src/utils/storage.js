@@ -4,6 +4,7 @@
 export const STORAGE_KEYS = {
   TOKEN: 'litenote_token',
   USER: 'litenote_user',
+  OPEN_SESSION: 'litenote_open_session', // 会话页 → 聊天页（tabBar 页面不能带参数跳转）
 }
 
 export const storage = {

@@ -49,6 +49,11 @@ class ChatRequestSerializer(serializers.Serializer):
     images = serializers.ListField(child=serializers.CharField(), required=False,
                                    help_text="Base64 图片列表")
 
+    def validate(self, attrs):
+        if not attrs.get("message", "").strip() and not attrs.get("images"):
+            raise serializers.ValidationError("消息内容不能为空")
+        return attrs
+
 
 class AsrRequestSerializer(serializers.Serializer):
     audio = serializers.CharField(help_text="Base64 音频")

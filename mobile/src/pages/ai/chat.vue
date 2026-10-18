@@ -1,12 +1,26 @@
 <template>
   <view class="page">
-    <view class="toolbar muted" @click="goSessions">历史会话 ›</view>
+    <view class="toolbar muted">
+      <text @click="newChat">＋ 新对话</text>
+      <text @click="goSessions">历史会话 ›</text>
+    </view>
     <scroll-view class="messages" scroll-y :scroll-into-view="scrollTarget">
       <view v-if="!messages.length" class="muted welcome">
         试试说：“中午吃饭花了 32 元，打车 18 元”
       </view>
       <view v-for="(m, i) in messages" :id="`msg-${i}`" :key="i" :class="['msg', m.role]">
-        <text class="bubble" user-select>{{ m.content }}</text>
+        <view class="col">
+          <text v-if="m.content || !m.bills?.length" class="bubble" user-select>{{ m.content || (m.pending ? '思考中…' : '') }}</text>
+          <view v-if="m.bills?.length" class="bills">
+            <bill-item v-for="(b, j) in m.bills" :key="j" :bill="toBillItem(b)" />
+            <view v-if="m.bills.some((b) => !b.categoryId)" class="muted hint">
+              部分账单没有匹配到分类，请在“账单”页手动补充
+            </view>
+            <button class="save" size="mini" :disabled="m.saving || !canSave(m)" @click="saveBills(m)">
+              {{ saveLabel(m) }}
+            </button>
+          </view>
+        </view>
       </view>
     </scroll-view>
 
@@ -20,7 +34,11 @@
 
 <script setup>
 import { nextTick, ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { aiApi, billApi } from '@/api'
 import { streamChat } from '@/api/stream'
+import { STORAGE_KEYS, storage } from '@/utils/storage'
+import BillItem from '@/components/bill-item/bill-item.vue'
 
 const messages = ref([])
 const input = ref('')
@@ -30,6 +48,40 @@ const scrollTarget = ref('')
 
 function scrollToBottom() {
   nextTick(() => { scrollTarget.value = `msg-${messages.value.length - 1}` })
+}
+
+/** 后端 create_bills 返回的是平铺字段，转成 bill-item 需要的结构 */
+const toBillItem = (b) => ({
+  ...b,
+  category: { name: b.categoryName, icon: b.categoryIcon },
+})
+
+// 没匹配到分类的账单无法保存（后端要求分类归属校验），其余可保存
+const pendingBills = (m) => m.bills.filter((b) => !b.saved && b.categoryId)
+const canSave = (m) => pendingBills(m).length > 0
+const saveLabel = (m) => {
+  if (m.saving) return '保存中…'
+  const n = pendingBills(m).length
+  return n ? `确认保存 ${n} 条` : '已保存'
+}
+
+/** 用户确认后才真正入库；AI 只负责识别，不直接写账 */
+async function saveBills(m) {
+  m.saving = true
+  try {
+    for (const b of pendingBills(m)) {
+      await billApi.create({
+        amount: b.amount, type: b.type, description: b.description,
+        categoryId: b.categoryId, date: b.date, source: 'text',
+      })
+      b.saved = true // 逐条标记，中途失败时不会重复保存已成功的
+    }
+    uni.showToast({ title: '已保存', icon: 'success' })
+  } catch (e) {
+    // 请求层已弹出错误提示
+  } finally {
+    m.saving = false
+  }
 }
 
 /** 处理后端推送的流式事件，事件类型见 backend/apps/ai/services/chat.py */
@@ -42,9 +94,14 @@ function handleEvent(evt, reply) {
       reply.content += evt.data.content
       scrollToBottom()
       break
-    case 'tool_result':
-      // TODO: 以卡片形式展示 AI 创建/查询的账单
+    case 'tool_result': {
+      const { toolName, result } = evt.data
+      if (toolName === 'create_bills' && result.success && result.data.bills.length) {
+        reply.bills = result.data.bills.map((b) => ({ ...b, saved: false }))
+        scrollToBottom()
+      }
       break
+    }
     case 'error':
       reply.content = evt.data.message || '出错了'
       break
@@ -56,7 +113,8 @@ async function send() {
   if (!text || sending.value) return
   input.value = ''
   messages.value.push({ role: 'user', content: text })
-  messages.value.push({ role: 'assistant', content: '' })
+  messages.value.push({ role: 'assistant', content: '', pending: true, bills: [], saving: false })
+  // 取响应式代理：直接改原始对象不会触发视图更新
   const reply = messages.value[messages.value.length - 1]
   scrollToBottom()
 
@@ -67,11 +125,35 @@ async function send() {
   } catch (e) {
     reply.content = e.message || '网络异常'
   } finally {
+    reply.pending = false
     sending.value = false
   }
 }
 
-// TODO: 在历史会话页选择后，带 sessionId 回到这里并加载会话消息
+function newChat() {
+  if (sending.value) return
+  sessionId.value = null
+  messages.value = []
+}
+
+/** 加载历史会话：只还原对话文字；工具调用过程和账单卡片不还原，避免重复保存 */
+async function openSession(id) {
+  const detail = await aiApi.session(id)
+  sessionId.value = detail.id
+  messages.value = detail.messages
+    .filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content)
+    .map((m) => ({ role: m.role, content: m.content, bills: [] }))
+  scrollToBottom()
+}
+
+onShow(() => {
+  const id = storage.get(STORAGE_KEYS.OPEN_SESSION)
+  if (id) {
+    storage.remove(STORAGE_KEYS.OPEN_SESSION)
+    openSession(id)
+  }
+})
+
 const goSessions = () => uni.navigateTo({ url: '/pages/ai/sessions' })
 </script>
 
@@ -82,7 +164,8 @@ const goSessions = () => uni.navigateTo({ url: '/pages/ai/sessions' })
   height: calc(100vh - var(--window-top) - var(--window-bottom));
 }
 .toolbar {
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
   padding: 16rpx 32rpx 0;
 }
 .messages {
@@ -106,13 +189,35 @@ const goSessions = () => uni.navigateTo({ url: '/pages/ai/sessions' })
     }
   }
 }
+.col {
+  max-width: 88%;
+}
 .bubble {
-  max-width: 80%;
+  display: inline-block;
   padding: 20rpx 28rpx;
   border-radius: 24rpx;
   background: $ln-card;
   white-space: pre-wrap;
   line-height: 1.6;
+}
+.bills {
+  margin-top: 12rpx;
+  padding: 0 24rpx 20rpx;
+  background: $ln-card;
+  border-radius: 24rpx;
+}
+.hint {
+  padding-top: 12rpx;
+  font-size: 24rpx;
+}
+.save {
+  margin-top: 16rpx;
+  background: $ln-primary;
+  color: #fff;
+  &[disabled] {
+    background: $ln-border;
+    color: $ln-text-secondary;
+  }
 }
 .composer {
   display: flex;
