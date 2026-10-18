@@ -28,8 +28,8 @@ class BillViewSet(UserOwnedViewSet):
         prefix = "-" if p["order_direction"] == "desc" else ""
         return qs.order_by(f"{prefix}{p['order_by']}", f"{prefix}id")
 
-    # TODO: 原项目创建/修改/删除账单时是否联动账户余额，需对照 bills.service.ts 核实后在此实现
-    #       （如需联动，放在 transaction.atomic() 中并对账户 select_for_update()）
+    # 不联动账户余额：已对照原项目 bills.service.ts，其创建 / 修改 / 删除账单时都不改账户余额，
+    # 账户余额是用户在账户页手动维护的字段（accounts.service.ts 也只做汇总）。这里保持一致。
 
     @extend_schema(parameters=[StatisticsQuerySerializer], summary="收支统计")
     @action(detail=False, methods=["get"])

@@ -29,10 +29,11 @@ from apps.categories.models import Category
 from common.exceptions import BusinessError
 
 from ..adapters import get_adapter
-from ..models import AIModelConfig, ChatSession
+from ..models import ChatSession
 from ..tools import TOOLS
 from . import session as sessions
 from . import tool_executor
+from .configs import resolve_ai_config
 
 logger = logging.getLogger(__name__)
 
@@ -79,19 +80,7 @@ def _prepare(user, payload: dict) -> dict:
         if session is None:
             raise BusinessError("会话不存在", status=404)
 
-    configs = AIModelConfig.objects.filter(user=user)
-    ai_config = None
-    if payload.get("ai_config_id"):
-        ai_config = configs.filter(id=payload["ai_config_id"]).first()
-        if ai_config is None:
-            raise BusinessError("AI 模型配置不存在", status=404)
-    elif session and session.ai_config_id:
-        ai_config = configs.filter(id=session.ai_config_id).first()
-    if ai_config is None:
-        # 没有默认配置时（比如默认的被删了）退而使用最近创建的，不让用户卡在"请先配置"
-        ai_config = configs.order_by("-is_default", "-id").first()
-    if ai_config is None:
-        raise BusinessError("请先配置 AI 模型")
+    ai_config = resolve_ai_config(user, payload.get("ai_config_id"), session.ai_config_id if session else None)
 
     is_new = session is None
     if is_new:

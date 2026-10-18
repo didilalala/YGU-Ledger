@@ -26,8 +26,9 @@ from .serializers import (
     ChatRequestSerializer,
     ChatSessionDetailSerializer,
     ChatSessionSerializer,
+    ParseBillsRequestSerializer,
 )
-from .services import asr, chat
+from .services import asr, chat, parse
 
 logger = logging.getLogger(__name__)
 
@@ -169,10 +170,14 @@ class AsrTranscribeView(APIView):
 
 
 class ParseBillsView(APIView):
-    """旧接口：从文本/图片中直接解析账单（不走对话）。对应原项目 ai.controller.ts parse-bills。"""
+    """旧接口：从文本 / 图片中直接解析账单（不走对话）。对应原项目 ai.controller.ts parse-bills。"""
 
-    serializer_class = ChatRequestSerializer  # TODO: 替换为专用的解析请求序列化器
+    serializer_class = ParseBillsRequestSerializer
 
+    @extend_schema(request=ParseBillsRequestSerializer, summary="解析账单（文本 / 图片）")
     def post(self, request):
-        # TODO: 使用默认 AI 配置 + 原项目 BILL_PARSE_PROMPT 解析，返回账单数组
-        raise BusinessError("账单解析尚未实现", status=501)
+        serializer = ParseBillsRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        d = serializer.validated_data
+        bills = parse.parse_bills(request.user, d["content"], d["type"], d.get("config_id"))
+        return Response({"bills": bills})

@@ -20,6 +20,9 @@ from .serializers import (
 )
 
 
+AVATAR_EXTENSIONS = {"JPEG": "jpg", "PNG": "png", "GIF": "gif", "WEBP": "webp"}
+
+
 def _token_for(user):
     return str(RefreshToken.for_user(user).access_token)
 
@@ -88,7 +91,10 @@ class AvatarView(APIView):
         serializer = AvatarSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data["file"]
-        ext = file.name.rsplit(".", 1)[-1].lower()
+        # 扩展名由检测到的图片格式决定，不信任用户给的文件名（避免把 x.php 这类名字原样落盘）
+        ext = AVATAR_EXTENSIONS.get(file.image.format)
+        if ext is None:
+            raise BusinessError("仅支持 JPG、PNG、GIF、WebP 格式的图片")
         path = default_storage.save(f"avatars/{uuid.uuid4().hex}.{ext}", file)
         request.user.avatar = request.build_absolute_uri(default_storage.url(path))
         request.user.save(update_fields=["avatar"])

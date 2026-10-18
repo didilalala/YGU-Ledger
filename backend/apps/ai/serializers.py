@@ -58,3 +58,9 @@ class ChatRequestSerializer(serializers.Serializer):
 class AsrRequestSerializer(serializers.Serializer):
     audio = serializers.CharField(help_text="Base64 音频")
     mime_type = serializers.CharField(default="audio/mp4")
+
+
+class ParseBillsRequestSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(choices=["image", "text"])
+    content = serializers.CharField(help_text="文字内容，或 Base64 图片")
+    config_id = serializers.IntegerField(required=False, allow_null=True, help_text="模型配置 ID，不传则用默认")

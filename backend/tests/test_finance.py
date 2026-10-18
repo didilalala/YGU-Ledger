@@ -83,10 +83,40 @@ def test_budget_progress(client):
     assert item["isAlert"] is True and item["isOverBudget"] is False
 
 
-def test_account_balance(client):
+def test_account_balance_splits_assets_and_liabilities(client):
     client.post("/api/accounts", {"name": "银行卡", "type": "bank_card", "balance": 100.5}, format="json")
     client.post("/api/accounts", {"name": "现金", "type": "cash", "balance": 20}, format="json")
-    assert client.get("/api/accounts/balance").json()["data"]["totalBalance"] == 120.5
+    client.post("/api/accounts", {"name": "信用卡", "type": "credit_card", "balance": -300}, format="json")
+    data = client.get("/api/accounts/balance").json()["data"]
+    assert data == {"totalAssets": 120.5, "totalLiabilities": 300.0, "netWorth": -179.5}
+
+
+def test_only_one_default_account(client, other_client):
+    def create(name, **kw):
+        return client.post("/api/accounts", {"name": name, "type": "cash", **kw}, format="json").json()["data"]
+
+    a = create("A", isDefault=True)
+    b = create("B", isDefault=True)  # 新建时设为默认，A 应被取消
+    defaults = lambda: [x["name"] for x in client.get("/api/accounts").json()["data"] if x["isDefault"]]  # noqa: E731
+    assert defaults() == ["B"]
+
+    client.patch(f"/api/accounts/{a['id']}", {"isDefault": True}, format="json")  # 修改时设为默认，B 应被取消
+    assert defaults() == ["A"]
+
+    client.patch(f"/api/accounts/{a['id']}", {"name": "A2"}, format="json")  # 改其他字段不影响默认
+    assert defaults() == ["A2"]
+
+    # 别人的默认账户不受影响
+    other_client.post("/api/accounts", {"name": "X", "type": "cash", "isDefault": True}, format="json")
+    client.patch(f"/api/accounts/{b['id']}", {"isDefault": True}, format="json")
+    assert [x["name"] for x in other_client.get("/api/accounts").json()["data"] if x["isDefault"]] == ["X"]
+
+
+def test_accounts_listed_default_first(client):
+    for name in ("先建", "后建"):
+        client.post("/api/accounts", {"name": name, "type": "cash"}, format="json")
+    client.post("/api/accounts", {"name": "默认", "type": "bank_card", "isDefault": True}, format="json")
+    assert [x["name"] for x in client.get("/api/accounts").json()["data"]] == ["默认", "后建", "先建"]
 
 
 # ---------------------------------------------------------------- 目标
