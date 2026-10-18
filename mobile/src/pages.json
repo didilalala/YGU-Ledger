@@ -17,6 +17,8 @@
 		{ "path": "pages/bills/create", "style": { "navigationBarTitleText": "记一笔" } },
 		{ "path": "pages/bills/detail", "style": { "navigationBarTitleText": "账单详情" } },
 		{ "path": "pages/ai/sessions", "style": { "navigationBarTitleText": "历史会话" } },
+		{ "path": "pages/ai/config", "style": { "navigationBarTitleText": "AI 模型" } },
+		{ "path": "pages/ai/config-edit", "style": { "navigationBarTitleText": "添加模型" } },
 		{ "path": "pages/budget/index", "style": { "navigationBarTitleText": "预算" } },
 		{ "path": "pages/goal/index", "style": { "navigationBarTitleText": "财务目标" } },
 		{ "path": "pages/category/index", "style": { "navigationBarTitleText": "分类管理" } },

@@ -11,6 +11,7 @@
       <view v-for="(m, i) in messages" :id="`msg-${i}`" :key="i" :class="['msg', m.role]">
         <view class="col">
           <text v-if="m.content || !m.bills?.length" class="bubble" user-select>{{ m.content || (m.pending ? '思考中…' : '') }}</text>
+          <button v-if="m.needConfig" class="save" size="mini" @click="goConfig">去配置 AI 模型</button>
           <view v-if="m.bills?.length" class="bills">
             <bill-item v-for="(b, j) in m.bills" :key="j" :bill="toBillItem(b)" />
             <view v-if="m.bills.some((b) => !b.categoryId)" class="muted hint">
@@ -104,6 +105,7 @@ function handleEvent(evt, reply) {
     }
     case 'error':
       reply.content = evt.data.message || '出错了'
+      if (reply.content.includes('请先配置')) reply.needConfig = true
       break
   }
 }
@@ -154,6 +156,7 @@ onShow(() => {
   }
 })
 
+const goConfig = () => uni.navigateTo({ url: '/pages/ai/config' })
 const goSessions = () => uni.navigateTo({ url: '/pages/ai/sessions' })
 </script>
 

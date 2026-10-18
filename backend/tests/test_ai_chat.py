@@ -257,6 +257,15 @@ def test_session_remembers_explicit_config(user, ai_config, fake, monkeypatch):
     assert picked == [other_cfg.id, other_cfg.id]  # 第二次没传配置，沿用会话上的
 
 
+def test_falls_back_to_any_config_when_no_default(user, fake, monkeypatch):
+    cfg = AIModelConfig.objects.create(user=user, name="x", provider="qwen", api_key="k", model="q")
+    picked = []
+    adapter = FakeAdapter([text("ok")])
+    monkeypatch.setattr(chat, "get_adapter", lambda c: picked.append(c.id) or adapter)
+    run_stream(user, {"message": "hi"})
+    assert picked == [cfg.id]
+
+
 def test_adapter_exception_becomes_error_event(user, ai_config, monkeypatch):
     class Boom:
         async def chat_stream(self, messages, tools):

@@ -38,6 +38,11 @@ class AIModelConfigViewSet(UserOwnedViewSet):
     serializer_class = AIModelConfigSerializer
     pagination_class = None
 
+    def perform_create(self, serializer):
+        # 第一个配置自动成为默认，否则用户填完 Key 去聊天还会提示"请先配置 AI 模型"
+        first = not self.get_queryset().exists()
+        serializer.save(user=self.request.user, is_default=first)
+
     @action(detail=True, methods=["post"], url_path="set-default")
     def set_default(self, request, pk=None):
         config = self.get_object()

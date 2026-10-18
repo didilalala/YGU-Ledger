@@ -67,3 +67,35 @@ def test_chat_stream_events_are_camelcased(client, monkeypatch):
     body = asyncio.run(read_all()).decode()
     assert 'data: {"event": "session_created", "data": {"sessionId": 7}}\n\n' in body
     assert "收到：你好" in body
+
+
+def test_first_config_becomes_default(client):
+    def create(name):
+        return client.post("/api/ai/configs", {"name": name, "provider": "openai", "apiKey": "k",
+                                               "model": "gpt"}, format="json").json()["data"]
+
+    first, second = create("a"), create("b")
+    assert first["isDefault"] is True and second["isDefault"] is False
+
+
+def test_update_config_without_api_key_keeps_it(client):
+    cfg = client.post("/api/ai/configs", {"name": "a", "provider": "openai", "apiKey": "sk-original-1234",
+                                          "model": "gpt"}, format="json").json()["data"]
+    resp = client.patch(f"/api/ai/configs/{cfg['id']}", {"model": "gpt-4o", "apiBaseUrl": None}, format="json")
+    assert resp.status_code == 200 and resp.json()["data"]["apiKeyMasked"].endswith("1234")
+    assert AIModelConfig.objects.get(id=cfg["id"]).api_key == "sk-original-1234"
+    client.patch(f"/api/ai/configs/{cfg['id']}", {"apiKey": "sk-new-5678"}, format="json")
+    assert AIModelConfig.objects.get(id=cfg["id"]).api_key == "sk-new-5678"
+
+
+def test_config_test_endpoint_reports_failure(client, monkeypatch):
+    from apps.ai.adapters import ClaudeAdapter
+
+    async def boom(self):
+        raise RuntimeError("401 invalid x-api-key")
+
+    monkeypatch.setattr(ClaudeAdapter, "test_connection", boom)
+    cfg = client.post("/api/ai/configs", {"name": "c", "provider": "claude", "apiKey": "k",
+                                          "model": "m"}, format="json").json()["data"]
+    data = client.post(f"/api/ai/configs/{cfg['id']}/test").json()["data"]
+    assert data == {"success": False, "message": "401 invalid x-api-key"}

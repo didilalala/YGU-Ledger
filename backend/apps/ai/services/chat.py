@@ -88,7 +88,8 @@ def _prepare(user, payload: dict) -> dict:
     elif session and session.ai_config_id:
         ai_config = configs.filter(id=session.ai_config_id).first()
     if ai_config is None:
-        ai_config = configs.filter(is_default=True).first()
+        # 没有默认配置时（比如默认的被删了）退而使用最近创建的，不让用户卡在"请先配置"
+        ai_config = configs.order_by("-is_default", "-id").first()
     if ai_config is None:
         raise BusinessError("请先配置 AI 模型")
 

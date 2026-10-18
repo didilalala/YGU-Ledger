@@ -10,13 +10,14 @@
     </view>
 
     <uni-list class="menu">
+      <uni-list-item title="AI 模型配置" show-arrow clickable @click="go('/pages/ai/config')" />
       <uni-list-item title="预算" show-arrow clickable @click="go('/pages/budget/index')" />
       <uni-list-item title="财务目标" show-arrow clickable @click="go('/pages/goal/index')" />
       <uni-list-item title="分类管理" show-arrow clickable @click="go('/pages/category/index')" />
       <!-- #ifdef APP-PLUS -->
       <uni-list-item title="通知自动记账" show-arrow clickable @click="go('/pages/mine/notification')" />
       <!-- #endif -->
-      <!-- TODO: AI 模型配置、编辑资料、修改密码、检查更新 -->
+      <!-- TODO: 编辑资料、修改密码、检查更新 -->
     </uni-list>
 
     <view class="actions">
