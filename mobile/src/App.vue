@@ -1,13 +1,19 @@
 <script>
+import { restoreAutoRecord } from '@/services/notification/auto-record'
 import { storage, STORAGE_KEYS } from '@/utils/storage'
+import { checkUpdate } from '@/utils/update'
 
 export default {
   onLaunch() {
     // 启动页是首页（tabBar 页），未登录时直接切到登录页
     if (!storage.get(STORAGE_KEYS.TOKEN)) {
       uni.reLaunch({ url: '/pages/auth/login' })
+    } else {
+      restoreAutoRecord() // 上次开着通知自动记账的话，启动后接着开
     }
-    // TODO: 已开启通知自动记账时，在这里启动监听（见 services/notification）
+    // #ifdef APP-PLUS
+    checkUpdate({ silent: true }) // 静默检查：只在有更新时才打扰用户
+    // #endif
   },
 }
 </script>

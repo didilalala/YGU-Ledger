@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { daysLeft, deadlineText, pickBudgets, pickGoals } from '../src/utils/dashboard.js'
+import { parseAmount } from '../src/utils/format.js'
 
 const b = (id, percentage, extra = {}) => ({ id, percentage, isAlert: false, isOverBudget: false, ...extra })
 
@@ -42,4 +43,16 @@ test('daysLeft / deadlineText', () => {
 
 test('daysLeft 跨夏令时 / 跨年也按整天计算', () => {
   assert.equal(daysLeft('2027-01-01', new Date(2026, 11, 31, 23, 59)), 1)
+})
+
+
+test('parseAmount 支持负数、千分位、小数，非法输入返回 NaN', () => {
+  assert.equal(parseAmount('100'), 100)
+  assert.equal(parseAmount(' 12.5 '), 12.5)
+  assert.equal(parseAmount('-300'), -300)
+  assert.equal(parseAmount('1,234.50'), 1234.5)
+  assert.equal(parseAmount('0'), 0)
+  for (const bad of ['', '  ', 'abc', '1.', '.5', '--1', '1-', '1e3', null, undefined]) {
+    assert.ok(Number.isNaN(parseAmount(bad)), `应为 NaN：${JSON.stringify(bad)}`)
+  }
 })

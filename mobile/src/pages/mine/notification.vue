@@ -34,25 +34,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { billApi } from '@/api'
-import { createDeduplicator, PACKAGES, parseNotification } from '@/services/notification/parser'
+import {
+  hasListenerPermission, isAutoRecordRunning, onAutoRecordEvent, startAutoRecord, stopAutoRecord,
+} from '@/services/notification/auto-record'
 // #ifdef APP-ANDROID
-import { isListenerEnabled, openListenerSettings, startListening, stopListening } from '@/uni_modules/lite-notification-listener'
+import { openListenerSettings } from '@/uni_modules/lite-notification-listener'
 // #endif
 
-const enabled = ref(false)
+const enabled = ref(false) // 系统是否已授予通知使用权
 const listening = ref(false)
 const logs = ref([])
 const rawLogs = ref([])
 const isDev = import.meta.env.DEV
-const isDuplicate = createDeduplicator()
+
+const STATUS_TEXT = { saved: '已记账', skipped: '已忽略', failed: '记账失败' }
+
+// 记账和确认弹窗由服务处理（离开本页也生效），这里只订阅事件来展示最近的识别结果
+const off = onAutoRecordEvent((evt) => {
+  if (evt.kind === 'raw') {
+    rawLogs.value.unshift(`[${evt.info.pkg}] ${evt.info.title} | ${evt.info.text}`)
+  } else {
+    const { bill } = evt
+    logs.value.unshift(`${bill.date} ${bill.type === 'income' ? '+' : '-'}${bill.amount} ${bill.description}（${STATUS_TEXT[evt.status]}）`)
+  }
+})
+onUnmounted(off)
 
 onShow(() => {
-  // #ifdef APP-ANDROID
-  enabled.value = isListenerEnabled()
-  // #endif
+  enabled.value = hasListenerPermission()
+  listening.value = isAutoRecordRunning()
 })
 
 function openSettings() {
@@ -61,23 +73,14 @@ function openSettings() {
   // #endif
 }
 
-async function onNotification(info) {
-  if (isDev) rawLogs.value.unshift(`[${info.pkg}] ${info.title} | ${info.text}`)
-  const bill = parseNotification(info)
-  if (!bill || isDuplicate(bill)) return
-  logs.value.unshift(`${bill.date} ${bill.type === 'income' ? '+' : '-'}${bill.amount} ${bill.description}`)
-  // TODO: 先弹窗让用户确认/选择分类再记账（原项目有"自动记账弹窗"）
-  const { raw, ...data } = bill
-  await billApi.create({ ...data, notes: raw }).catch(() => {})
-}
-
 function toggle(e) {
-  listening.value = e.detail.value
-  // #ifdef APP-ANDROID
-  if (listening.value) startListening({ packages: isDev ? [] : [PACKAGES.WECHAT, PACKAGES.ALIPAY] }, onNotification)
-  else stopListening()
-  // #endif
-  // TODO: 把开关状态存入 storage，App.vue 启动时自动恢复监听
+  if (e.detail.value) {
+    listening.value = startAutoRecord()
+    if (!listening.value) uni.showToast({ title: '请先开启通知使用权', icon: 'none' })
+  } else {
+    stopAutoRecord()
+    listening.value = false
+  }
 }
 </script>
 

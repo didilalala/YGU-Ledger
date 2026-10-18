@@ -28,3 +28,13 @@ export function monthRange(date = new Date()) {
   const end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
   return { startDate: toDateString(start), endDate: toDateString(end) }
 }
+
+/**
+ * 解析用户输入的金额，允许负数（如信用卡欠款）和千分位逗号。
+ * 不是合法数字时返回 NaN，调用方据此提示。
+ */
+export function parseAmount(input) {
+  const text = String(input ?? '').trim().replace(/,/g, '')
+  if (!/^-?\d+(\.\d+)?$/.test(text)) return NaN
+  return Number(text)
+}

@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class="card profile">
+    <view class="card profile" @click="go('/pages/mine/profile')">
       <image v-if="userStore.user?.avatar" class="avatar" :src="userStore.user.avatar" mode="aspectFill" />
       <view v-else class="avatar placeholder">{{ userStore.displayName.slice(0, 1) }}</view>
       <view class="info">
@@ -11,13 +11,15 @@
 
     <uni-list class="menu">
       <uni-list-item title="AI 模型配置" show-arrow clickable @click="go('/pages/ai/config')" />
+      <uni-list-item title="账户管理" show-arrow clickable @click="go('/pages/account/index')" />
       <uni-list-item title="预算" show-arrow clickable @click="go('/pages/budget/index')" />
       <uni-list-item title="财务目标" show-arrow clickable @click="go('/pages/goal/index')" />
       <uni-list-item title="分类管理" show-arrow clickable @click="go('/pages/category/index')" />
       <!-- #ifdef APP-PLUS -->
       <uni-list-item title="通知自动记账" show-arrow clickable @click="go('/pages/mine/notification')" />
       <!-- #endif -->
-      <!-- TODO: 编辑资料、修改密码、检查更新 -->
+      <uni-list-item title="修改密码" show-arrow clickable @click="go('/pages/mine/password')" />
+      <uni-list-item title="检查更新" show-arrow clickable @click="checkUpdate()" />
     </uni-list>
 
     <view class="actions">
@@ -29,6 +31,7 @@
 <script setup>
 import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
+import { checkUpdate } from '@/utils/update'
 
 const userStore = useUserStore()
 

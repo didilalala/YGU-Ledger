@@ -4,6 +4,7 @@
 export const STORAGE_KEYS = {
   TOKEN: 'litenote_token',
   USER: 'litenote_user',
+  AUTO_RECORD: 'litenote_auto_record', // 通知自动记账开关
   OPEN_SESSION: 'litenote_open_session', // 会话页 → 聊天页（tabBar 页面不能带参数跳转）
 }
 

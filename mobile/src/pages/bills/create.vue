@@ -24,8 +24,13 @@
       <picker mode="date" :value="form.date" @change="(e) => (form.date = e.detail.value)">
         <view class="field"><text>日期</text><text class="muted">{{ form.date }} ›</text></view>
       </picker>
+      <picker v-if="accounts.length" :range="accountOptions" range-key="label" :value="accountIndex"
+        @change="(e) => (form.accountId = accountOptions[e.detail.value].id)">
+        <view class="field"><text>账户</text><text class="muted">{{ accountOptions[accountIndex].label }} ›</text></view>
+      </picker>
       <uni-easyinput v-model="form.description" placeholder="备注（可选）" />
-      <!-- TODO: 账户选择、标签、上传收据图片 -->
+      <uni-easyinput v-model="tagsText" placeholder="标签（可选，空格或逗号分隔，最多 5 个）" />
+      <!-- TODO: 上传收据图片 -->
     </view>
 
     <view class="actions">
@@ -37,19 +42,27 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { billApi } from '@/api'
+import { accountApi, billApi } from '@/api'
 import { useCategoryStore } from '@/stores/category'
 import { toDateString } from '@/utils/format'
+import { formatTags, parseTags } from '@/utils/tags'
 
 const categoryStore = useCategoryStore()
 const saving = ref(false)
+const tagsText = ref('')
 const form = reactive({
   type: 'expense',
   amount: '',
   categoryId: null,
   date: toDateString(),
   description: '',
+  accountId: null,
 })
+
+// 账户是可选的；新建账单时默认选中默认账户。注意余额不会随账单自动变化（与原项目一致）
+const accounts = ref([])
+const accountOptions = computed(() => [{ id: null, label: '不选择' }, ...accounts.value.map((a) => ({ id: a.id, label: a.name }))])
+const accountIndex = computed(() => Math.max(0, accountOptions.value.findIndex((o) => o.id === form.accountId)))
 
 const categories = computed(() => (form.type === 'expense' ? categoryStore.expense : categoryStore.income))
 
@@ -63,7 +76,11 @@ const id = ref(null)
 
 onLoad(async (query) => {
   await categoryStore.load().catch(() => {})
-  if (!query.id) return
+  accounts.value = await accountApi.list().catch(() => [])
+  if (!query.id) {
+    form.accountId = accounts.value.find((a) => a.isDefault)?.id ?? null
+    return
+  }
   id.value = Number(query.id)
   uni.setNavigationBarTitle({ title: '编辑账单' })
   const bill = await billApi.detail(id.value)
@@ -73,18 +90,21 @@ onLoad(async (query) => {
     categoryId: bill.category?.id ?? null,
     date: bill.date,
     description: bill.description || '',
+    accountId: bill.accountId ?? null,
   })
+  tagsText.value = formatTags(bill.tags)
 })
 
 async function save() {
   const amount = Number(form.amount)
   if (!(amount > 0)) return uni.showToast({ title: '请输入正确的金额', icon: 'none' })
 
+  const tags = parseTags(tagsText.value)
   saving.value = true
   try {
-    // 编辑时只提交表单里的字段，不改动来源、标签、账户等
-    if (id.value) await billApi.update(id.value, { ...form, amount })
-    else await billApi.create({ ...form, amount, source: 'manual' })
+    // 编辑时只提交表单里的字段，不改动来源等
+    if (id.value) await billApi.update(id.value, { ...form, amount, tags })
+    else await billApi.create({ ...form, amount, tags, source: 'manual' })
     uni.showToast({ title: id.value ? '已保存' : '已记账', icon: 'success' })
     setTimeout(() => uni.navigateBack(), 500)
   } catch (e) {
