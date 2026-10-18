@@ -96,6 +96,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "zh-hans"
 TIME_ZONE = "Asia/Shanghai"
+
+# 对话请求里带 Base64 图片、语音转写带 Base64 音频，Django 默认的 2.5MB 请求体上限不够用（nginx 为 20MB）
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024
 USE_I18N = True
 USE_TZ = True  # 数据库统一存 UTC
 

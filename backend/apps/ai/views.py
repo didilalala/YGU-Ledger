@@ -2,6 +2,7 @@ import json
 import logging
 
 from asgiref.sync import async_to_sync, sync_to_async
+from django.core.exceptions import RequestDataTooBig
 from django.db import transaction
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -131,7 +132,16 @@ async def chat_stream(request):
     except AuthenticationFailed:
         return JsonResponse({"code": 401, "message": "未授权访问", "data": None, "success": False}, status=401)
 
-    serializer = ChatRequestSerializer(data=underscoreize(json.loads(request.body or b"{}")))
+    try:
+        body = json.loads(request.body or b"{}")
+    except RequestDataTooBig:
+        return JsonResponse({"code": 413, "message": "请求内容过大，请减少图片数量或压缩图片", "data": None,
+                             "success": False}, status=413)
+    except ValueError:
+        return JsonResponse({"code": 400, "message": "请求体不是合法的 JSON", "data": None, "success": False},
+                            status=400)
+
+    serializer = ChatRequestSerializer(data=underscoreize(body))
     if not serializer.is_valid():
         return JsonResponse({"code": 400, "message": "请求参数错误", "data": serializer.errors,
                              "success": False}, status=400)

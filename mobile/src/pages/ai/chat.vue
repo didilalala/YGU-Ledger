@@ -10,6 +10,10 @@
       </view>
       <view v-for="(m, i) in messages" :id="`msg-${i}`" :key="i" :class="['msg', m.role]">
         <view class="col">
+          <view v-if="m.images?.length" class="thumbs">
+            <image v-for="(src, k) in m.images" :key="k" class="thumb" :src="src" mode="aspectFill"
+              @click="preview(m.images, k)" />
+          </view>
           <text v-if="m.content || !m.bills?.length" class="bubble" user-select>{{ m.content || (m.pending ? '思考中…' : '') }}</text>
           <button v-if="m.needConfig" class="save" size="mini" @click="goConfig">去配置 AI 模型</button>
           <view v-if="m.bills?.length" class="bills">
@@ -25,20 +29,35 @@
       </view>
     </scroll-view>
 
+    <view v-if="pendingImages.length" class="pending">
+      <view v-for="(src, k) in pendingImages" :key="k" class="pending-item">
+        <image class="thumb" :src="src" mode="aspectFill" />
+        <text class="remove" @click="pendingImages.splice(k, 1)">×</text>
+      </view>
+    </view>
+
     <view class="composer">
-      <!-- TODO: 语音按钮（uni.getRecorderManager → aiApi.transcribe）、拍照按钮（uni.chooseImage → base64） -->
-      <input v-model="input" class="input" placeholder="描述你的消费或提问…" confirm-type="send" @confirm="send" />
-      <button class="send" size="mini" :disabled="sending || !input.trim()" @click="send">发送</button>
+      <text class="icon-btn" @click="toggleVoiceMode">{{ voiceMode ? '⌨️' : '🎤' }}</text>
+      <view v-if="voiceMode" :class="['hold', { active: voice.state !== 'idle', cancel: voice.willCancel }]"
+        @touchstart.prevent="onHoldStart" @touchmove.prevent="onHoldMove" @touchend.prevent="onHoldEnd"
+        @touchcancel.prevent="onHoldCancel">
+        <text>{{ holdLabel }}</text>
+      </view>
+      <input v-else v-model="input" class="input" placeholder="描述你的消费或提问…" confirm-type="send" @confirm="send" />
+      <text v-if="pendingImages.length < MAX_IMAGES" class="icon-btn" @click="chooseImage">📷</text>
+      <button v-if="!voiceMode" class="send" size="mini" :disabled="!canSend" @click="send">发送</button>
     </view>
   </view>
 </template>
 
 <script setup>
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { aiApi, billApi } from '@/api'
 import { streamChat } from '@/api/stream'
 import { STORAGE_KEYS, storage } from '@/utils/storage'
+import { pickImages } from '@/utils/media'
+import { createRecorder } from '@/utils/recorder'
 import BillItem from '@/components/bill-item/bill-item.vue'
 
 const messages = ref([])
@@ -46,6 +65,9 @@ const input = ref('')
 const sending = ref(false)
 const sessionId = ref(null)
 const scrollTarget = ref('')
+const pendingImages = ref([])
+const MAX_IMAGES = 3 // 每条消息最多 3 张，控制请求体和模型用量
+const canSend = computed(() => !sending.value && (input.value.trim() || pendingImages.value.length))
 
 function scrollToBottom() {
   nextTick(() => { scrollTarget.value = `msg-${messages.value.length - 1}` })
@@ -110,11 +132,10 @@ function handleEvent(evt, reply) {
   }
 }
 
-async function send() {
-  const text = input.value.trim()
-  if (!text || sending.value) return
-  input.value = ''
-  messages.value.push({ role: 'user', content: text })
+/** 发送一条消息；语音识别完成后也走这里 */
+async function sendMessage(text, images = []) {
+  if ((!text && !images.length) || sending.value) return
+  messages.value.push({ role: 'user', content: text, images })
   messages.value.push({ role: 'assistant', content: '', pending: true, bills: [], saving: false })
   // 取响应式代理：直接改原始对象不会触发视图更新
   const reply = messages.value[messages.value.length - 1]
@@ -122,7 +143,10 @@ async function send() {
 
   sending.value = true
   try {
-    const { done } = streamChat({ message: text, sessionId: sessionId.value }, (evt) => handleEvent(evt, reply))
+    const { done } = streamChat(
+      { message: text, sessionId: sessionId.value, ...(images.length ? { images } : {}) },
+      (evt) => handleEvent(evt, reply),
+    )
     await done
   } catch (e) {
     reply.content = e.message || '网络异常'
@@ -132,10 +156,118 @@ async function send() {
   }
 }
 
+function send() {
+  if (!canSend.value) return
+  const text = input.value.trim()
+  const images = pendingImages.value
+  input.value = ''
+  pendingImages.value = []
+  sendMessage(text, images)
+}
+
+// ---------- 拍照 / 相册 ----------
+
+function chooseImage() {
+  uni.showActionSheet({
+    itemList: ['拍照', '从相册选择'],
+    success: async ({ tapIndex }) => {
+      try {
+        const picked = await pickImages(tapIndex === 0 ? 'camera' : 'album', MAX_IMAGES - pendingImages.value.length)
+        pendingImages.value.push(...picked.slice(0, MAX_IMAGES - pendingImages.value.length))
+      } catch (e) {
+        uni.showToast({ title: '无法读取图片', icon: 'none' })
+      }
+    },
+  })
+}
+
+const preview = (urls, current) => uni.previewImage({ urls, current })
+
+// ---------- 语音：按住说话，松手识别并发送，上滑取消 ----------
+
+const CANCEL_DISTANCE = 80 // 手指上滑超过这个距离（px）视为取消
+const voiceMode = ref(false)
+const voice = reactive({ state: 'idle', willCancel: false }) // idle | recording | transcribing
+let recorder = null
+let startY = 0
+
+const holdLabel = computed(() => {
+  if (voice.state === 'transcribing') return '识别中…'
+  if (voice.state === 'recording') return voice.willCancel ? '松开取消' : '松开发送，上滑取消'
+  return '按住 说话'
+})
+
+const toggleVoiceMode = () => { if (voice.state === 'idle') voiceMode.value = !voiceMode.value }
+
+async function onHoldStart(e) {
+  if (voice.state !== 'idle' || sending.value) return
+  startY = e.touches[0].clientY
+  voice.state = 'recording'
+  voice.willCancel = false
+  recorder = createRecorder()
+  try {
+    await recorder.start()
+  } catch (err) {
+    voice.state = 'idle'
+    recorder = null
+    uni.showToast({ title: err.message || '无法开始录音，请检查麦克风权限', icon: 'none' })
+  }
+}
+
+function onHoldMove(e) {
+  if (voice.state !== 'recording') return
+  voice.willCancel = startY - e.touches[0].clientY > CANCEL_DISTANCE
+}
+
+async function onHoldEnd() {
+  if (voice.state !== 'recording' || !recorder) return
+  const current = recorder
+  recorder = null
+  if (voice.willCancel) {
+    current.cancel()
+    return resetVoice()
+  }
+  voice.state = 'transcribing'
+  try {
+    const clip = await current.stop()
+    if (!clip) return uni.showToast({ title: '说话时间太短', icon: 'none' })
+    const { text } = await aiApi.transcribe(clip.base64, clip.mimeType)
+    if (!text) return uni.showToast({ title: '没听清，请再说一次', icon: 'none' })
+    resetVoice()
+    await sendMessage(text, [])
+  } catch (err) {
+    uni.showToast({ title: err.message || '语音识别失败', icon: 'none' })
+  } finally {
+    resetVoice()
+  }
+}
+
+function onHoldCancel() {
+  recorder?.cancel()
+  recorder = null
+  resetVoice()
+}
+
+function resetVoice() {
+  voice.state = 'idle'
+  voice.willCancel = false
+}
+
 function newChat() {
   if (sending.value) return
   sessionId.value = null
   messages.value = []
+}
+
+/** 后端把图片列表存成 JSON 字符串 */
+function parseImages(raw) {
+  if (!raw) return []
+  try {
+    const list = JSON.parse(raw)
+    return Array.isArray(list) ? list : []
+  } catch (e) {
+    return []
+  }
 }
 
 /** 加载历史会话：只还原对话文字；工具调用过程和账单卡片不还原，避免重复保存 */
@@ -143,8 +275,8 @@ async function openSession(id) {
   const detail = await aiApi.session(id)
   sessionId.value = detail.id
   messages.value = detail.messages
-    .filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content)
-    .map((m) => ({ role: m.role, content: m.content, bills: [] }))
+    .filter((m) => (m.role === 'user' || m.role === 'assistant') && (m.content || m.imageUrl))
+    .map((m) => ({ role: m.role, content: m.content, bills: [], images: parseImages(m.imageUrl) }))
   scrollToBottom()
 }
 
@@ -220,6 +352,59 @@ const goSessions = () => uni.navigateTo({ url: '/pages/ai/sessions' })
   &[disabled] {
     background: $ln-border;
     color: $ln-text-secondary;
+  }
+}
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  justify-content: flex-end;
+  margin-bottom: 8rpx;
+}
+.thumb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+}
+.pending {
+  display: flex;
+  gap: 16rpx;
+  padding: 12rpx 24rpx 0;
+  background: $ln-card;
+}
+.pending-item {
+  position: relative;
+}
+.remove {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 38rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+.icon-btn {
+  font-size: 44rpx;
+  padding: 0 8rpx;
+}
+.hold {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  border-radius: 36rpx;
+  background: $ln-bg;
+  user-select: none;
+  &.active {
+    background: $ln-primary;
+    color: #fff;
+  }
+  &.cancel {
+    background: $ln-expense;
   }
 }
 .composer {

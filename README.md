@@ -91,6 +91,7 @@ App 端：用 HBuilderX 打开 `mobile/` 目录，运行到 Android 真机。真
 | AI 账单解析 `parse-bills`（旧接口） | 🚧 TODO |
 | UniApp 主干页面（登录、首页、账单、记账、报表） | ✅ 可用 |
 | UniApp AI 对话页（流式回复、账单卡片确认保存、历史会话） | ✅ 可用，未在真机验证 |
+| 语音输入（按住说话）、拍照 / 相册识别 | ⚠️ 已实现，未在真机 / 浏览器验证；ASR 需配置 `ASR_API_URL` / `ASR_API_KEY` |
 | UniApp 其他页面（预算、目标、分类、我的） | 🚧 列表可用，增删改待实现 |
 | 图表（uCharts） | 🚧 报表页暂用进度条代替 |
 | 通知监听 UTS 插件 | ⚠️ 骨架，未在 HBuilderX 中编译验证 |

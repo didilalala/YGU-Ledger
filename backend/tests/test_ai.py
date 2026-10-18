@@ -99,3 +99,16 @@ def test_config_test_endpoint_reports_failure(client, monkeypatch):
                                           "model": "m"}, format="json").json()["data"]
     data = client.post(f"/api/ai/configs/{cfg['id']}/test").json()["data"]
     assert data == {"success": False, "message": "401 invalid x-api-key"}
+
+
+def test_stream_rejects_bad_or_oversized_body(client, settings):
+    from django.test import Client
+
+    auth = client._credentials["HTTP_AUTHORIZATION"]
+    resp = Client().post("/api/ai/chat/stream", "{oops", content_type="application/json", HTTP_AUTHORIZATION=auth)
+    assert resp.status_code == 400 and resp.json()["message"] == "请求体不是合法的 JSON"
+
+    settings.DATA_UPLOAD_MAX_MEMORY_SIZE = 100
+    resp = Client().post("/api/ai/chat/stream", {"message": "x" * 500}, content_type="application/json",
+                         HTTP_AUTHORIZATION=auth)
+    assert resp.status_code == 413 and resp.json()["success"] is False

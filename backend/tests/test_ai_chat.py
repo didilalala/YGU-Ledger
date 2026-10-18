@@ -398,3 +398,22 @@ def test_stream_endpoint_end_to_end(client, ai_config, fake):
     body = asyncio.run(read())
     assert '"event": "session_created"' in body and '"sessionId"' in body
     assert "流式回复" in body and '"thinkingTimeMs"' in body
+
+
+def test_large_base64_images_are_accepted_by_stream(client, ai_config, fake):
+    """流式接口直接读 request.body，受 DATA_UPLOAD_MAX_MEMORY_SIZE 约束（默认 2.5MB）。
+    3 张约 1MB 的 Base64 图片合计超过默认值。"""
+    from django.test import Client
+
+    adapter = fake(text("看到了"))
+    images = ["data:image/jpeg;base64," + "A" * 1_000_000 for _ in range(3)]
+    resp = Client().post("/api/ai/chat/stream", {"message": "这些多少钱", "images": images},
+                         content_type="application/json", HTTP_AUTHORIZATION=client._credentials["HTTP_AUTHORIZATION"])
+
+    async def read():
+        body = b"".join([c async for c in resp.streaming_content])
+        await asyncio.gather(*chat._background)
+        return body.decode()
+
+    assert resp.status_code == 200 and "看到了" in asyncio.run(read())
+    assert [b["type"] for b in adapter.calls[0][1]["content"]] == ["text", "image", "image", "image"]
