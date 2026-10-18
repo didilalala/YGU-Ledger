@@ -1,9 +1,14 @@
 /**
- * ⚠️ 骨架代码，未在 HBuilderX 中编译验证。改造方案第 9.5 节的第一步就是验证这个文件：
- *   1. 能否在 UTS 中直接继承 NotificationListenerService（不行就把服务类改写成同目录下的 .kt 文件）
- *   2. AndroidManifest.xml 中的类名是否与编译产物一致
- *      （UTS 插件编译后的包名规则：uts.sdk.modules + 驼峰化插件 ID）
+ * 通知监听插件（Android）。
+ *
+ * 状态：已对照官方文档核对语法，但**尚未在 HBuilderX 中编译、也未在真机运行**。验证步骤见同目录上层的 README.md。
+ * 文档已确认：继承原生类用 extends、需显式构造函数并调用 super()、重写方法用 override 且参数可空；
+ *             Service 在 AndroidManifest.xml 中注册，类名为 uts.sdk.modules.<插件ID转驼峰>.<类名>。
+ * 文档未提及（待验证）：UTSAndroid 在 uni-app 项目中是否需要显式 import（这里加了，应无害）、
+ *             对象类型 type 作为回调参数传给 JS 时的结构。
+ * 如果 UTS 里继承 NotificationListenerService 编译不过，退路是改写为同目录下的 hybrid.kt（HBuilderX 4.25+）。
  */
+import { UTSAndroid } from 'io.dcloud.uts'
 import NotificationListenerService from 'android.service.notification.NotificationListenerService'
 import StatusBarNotification from 'android.service.notification.StatusBarNotification'
 import Notification from 'android.app.Notification'
@@ -25,7 +30,13 @@ let currentCallback : NotificationCallback | null = null
 let packageFilter : string[] = []
 
 export class LiteNotificationService extends NotificationListenerService {
-  override onNotificationPosted(sbn : StatusBarNotification) : void {
+  constructor () {
+    super()
+  }
+
+  // 系统在应用主线程回调此方法，因此可以直接调用 JS 回调，不需要再切线程
+  override onNotificationPosted(sbn ?: StatusBarNotification) : void {
+    if (sbn == null) return
     const callback = currentCallback
     if (callback == null) return
 
@@ -42,10 +53,7 @@ export class LiteNotificationService extends NotificationListenerService {
       text: text == null ? '' : text.toString(),
       postTime: sbn.getPostTime(),
     }
-    // 回到 JS 线程执行回调
-    UTSAndroid.getDispatcher('main').async(function (_) {
-      callback(info)
-    }, null)
+    callback(info)
   }
 }
 

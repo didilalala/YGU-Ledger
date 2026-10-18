@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="uts.sdk.modules.liteNotificationListener">
     <application>
-        <!-- ⚠️ 类名需与 UTS 编译产物一致，验证时以云打包后的实际包名为准 -->
+        <!-- 类名规则（官方文档）：uts.sdk.modules.<插件ID转驼峰>.<类名>；这里是插件包名，不是应用包名 -->
         <service
             android:name="uts.sdk.modules.liteNotificationListener.LiteNotificationService"
             android:label="LiteNote 通知自动记账"
