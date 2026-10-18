@@ -156,3 +156,22 @@ def test_latest_endpoint(versions):
     versions(100)
     versions(105)
     assert APIClient().get("/api/app-version/latest").json()["data"]["versionCode"] == 105
+
+
+# ---------------------------------------------------------------- 演示数据命令
+
+def test_seed_demo_is_idempotent_and_scoped(client):
+    from django.core.management import call_command
+
+    from apps.bills.models import Bill
+
+    mine_before = Bill.objects.filter(user__username="alice").count()  # alice 来自 client 夹具
+    call_command("seed_demo", months=3)
+    first = Bill.objects.filter(user__username="demo").count()
+    call_command("seed_demo", months=3)
+    assert first > 20 and Bill.objects.filter(user__username="demo").count() == first  # 重复执行结果相同
+    assert Bill.objects.filter(user__username="alice").count() == mine_before  # 不碰别的用户
+    from rest_framework.test import APIClient
+
+    assert APIClient().post("/api/auth/login", {"username": "demo", "password": "demo123456"},
+                            format="json").status_code == 200
