@@ -1,0 +1,71 @@
+/**
+ * ⚠️ 骨架代码，未在 HBuilderX 中编译验证。改造方案第 9.5 节的第一步就是验证这个文件：
+ *   1. 能否在 UTS 中直接继承 NotificationListenerService（不行就把服务类改写成同目录下的 .kt 文件）
+ *   2. AndroidManifest.xml 中的类名是否与编译产物一致
+ *      （UTS 插件编译后的包名规则：uts.sdk.modules + 驼峰化插件 ID）
+ */
+import NotificationListenerService from 'android.service.notification.NotificationListenerService'
+import StatusBarNotification from 'android.service.notification.StatusBarNotification'
+import Notification from 'android.app.Notification'
+import Intent from 'android.content.Intent'
+import Settings from 'android.provider.Settings'
+
+import {
+  NotificationInfo,
+  NotificationCallback,
+  IsListenerEnabled,
+  OpenListenerSettings,
+  StartListening,
+  StopListening,
+  StartOptions,
+} from '../interface.uts'
+
+// 服务实例由系统创建，只能通过模块级变量把通知转交给 JS 回调
+let currentCallback : NotificationCallback | null = null
+let packageFilter : string[] = []
+
+export class LiteNotificationService extends NotificationListenerService {
+  override onNotificationPosted(sbn : StatusBarNotification) : void {
+    const callback = currentCallback
+    if (callback == null) return
+
+    const pkg = sbn.getPackageName()
+    if (packageFilter.length > 0 && !packageFilter.includes(pkg)) return
+
+    const extras = sbn.getNotification().extras
+    const title = extras.getCharSequence(Notification.EXTRA_TITLE)
+    const text = extras.getCharSequence(Notification.EXTRA_TEXT)
+
+    const info : NotificationInfo = {
+      pkg: pkg,
+      title: title == null ? '' : title.toString(),
+      text: text == null ? '' : text.toString(),
+      postTime: sbn.getPostTime(),
+    }
+    // 回到 JS 线程执行回调
+    UTSAndroid.getDispatcher('main').async(function (_) {
+      callback(info)
+    }, null)
+  }
+}
+
+export const isListenerEnabled : IsListenerEnabled = function () : boolean {
+  const context = UTSAndroid.getAppContext()!
+  const enabled = Settings.Secure.getString(context.getContentResolver(), 'enabled_notification_listeners')
+  return enabled != null && enabled.includes(context.getPackageName())
+}
+
+export const openListenerSettings : OpenListenerSettings = function () : void {
+  const intent = new Intent('android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS')
+  intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+  UTSAndroid.getUniActivity()!.startActivity(intent)
+}
+
+export const startListening : StartListening = function (options : StartOptions, callback : NotificationCallback) : void {
+  packageFilter = options.packages
+  currentCallback = callback
+}
+
+export const stopListening : StopListening = function () : void {
+  currentCallback = null
+}

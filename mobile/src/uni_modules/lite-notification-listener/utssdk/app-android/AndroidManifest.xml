@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- ⚠️ 类名需与 UTS 编译产物一致，验证时以云打包后的实际包名为准 -->
+        <service
+            android:name="uts.sdk.modules.liteNotificationListener.LiteNotificationService"
+            android:label="LiteNote 通知自动记账"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

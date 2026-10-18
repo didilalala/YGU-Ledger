@@ -1,0 +1,27 @@
+{
+  "id": "lite-notification-listener",
+  "displayName": "LiteNote 通知监听",
+  "version": "0.1.0",
+  "description": "监听其他应用（微信、支付宝）的通知，用于支付通知自动记账。仅 Android。",
+  "keywords": ["notification", "NotificationListenerService"],
+  "engines": {
+    "HBuilderX": "^4.0"
+  },
+  "dcloudext": {
+    "type": "uts",
+    "sale": { "regular": { "price": "0.00" }, "sourcecode": { "price": "0.00" } },
+    "declaration": {
+      "ads": "无",
+      "data": "插件读取用户授权后的通知内容，仅在本机处理，不上传第三方",
+      "permissions": "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+    }
+  },
+  "uni_modules": {
+    "platforms": {
+      "client": {
+        "App": { "app-android": "y", "app-ios": "n" },
+        "H5-mobile": { "Safari": "n", "Android Browser": "n" }
+      }
+    }
+  }
+}

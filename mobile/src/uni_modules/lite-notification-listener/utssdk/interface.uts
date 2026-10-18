@@ -1,0 +1,31 @@
+/**
+ * 对外 API 类型声明。页面中通过
+ *   import { isListenerEnabled, ... } from '@/uni_modules/lite-notification-listener'
+ * 调用（仅 APP-ANDROID，页面里用条件编译包起来）。
+ */
+
+export type NotificationInfo = {
+  pkg : string
+  title : string
+  text : string
+  postTime : number
+}
+
+export type StartOptions = {
+  /** 只回调这些包名的通知；为空表示全部 */
+  packages : string[]
+}
+
+export type NotificationCallback = (info : NotificationInfo) => void
+
+/** 用户是否已在系统设置中授予本应用"通知使用权" */
+export type IsListenerEnabled = () => boolean
+
+/** 打开系统"通知使用权"设置页 */
+export type OpenListenerSettings = () => void
+
+/** 开始接收通知回调 */
+export type StartListening = (options : StartOptions, callback : NotificationCallback) => void
+
+/** 停止回调（系统服务仍在，只是不再转发给 JS） */
+export type StopListening = () => void
