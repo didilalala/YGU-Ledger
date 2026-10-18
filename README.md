@@ -29,6 +29,27 @@ AI 智能记账应用。参考项目 [GystuG/LiteNote](https://github.com/GystuG
 └── .env.example
 ```
 
+## 界面
+
+界面复刻原项目的 **Neo-Brutalism（新粗野主义）** 设计：米色背景、粗黑描边、无模糊的实心偏移阴影、饱和糖果色、超粗字重、数字用等宽体；底部导航中间是凸起的黄色"记账"按钮。设计令牌在 `mobile/src/uni.scss`，通用组件在 `mobile/src/components/ln-*`。
+
+<p align="center">
+  <img src="docs/screenshots/login.png" width="23%" alt="登录" />
+  <img src="docs/screenshots/dashboard.png" width="23%" alt="首页" />
+  <img src="docs/screenshots/assets.png" width="23%" alt="统计·资产" />
+  <img src="docs/screenshots/calendar.png" width="23%" alt="统计·日历" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/chat.png" width="23%" alt="AI 助手" />
+  <img src="docs/screenshots/bills.png" width="23%" alt="全部账单" />
+  <img src="docs/screenshots/budget.png" width="23%" alt="预算" />
+  <img src="docs/screenshots/mine.png" width="23%" alt="我的" />
+</p>
+
+> 截图由 `seed_demo` 的演示数据在 H5 端渲染得到（无头 Chromium）。
+
+> **来源与署名**：界面设计、登录页 logo（`mobile/src/static/logo.jpg`）和服务商图标（`provider-*.png`）来自 [GystuG/LiteNote](https://github.com/GystuG/LiteNote)，该项目采用 MIT 协议。本仓库的代码是用 UniApp 重新实现的，没有复制其 React Native 代码。
+
 ## 快速开始（Docker）
 
 ```bash
@@ -44,6 +65,15 @@ docker compose up -d --build
 首次启动后初始化系统默认分类：用管理员账号调用 `POST /api/categories/init-defaults`，或在 Django shell 中创建。
 
 > 本机 80 端口被占用时，在 `.env` 中设置 `HTTP_PORT=18080` 等其他端口。
+
+## 演示数据
+
+```bash
+cd backend
+.venv/bin/python manage.py seed_demo      # 创建用户 demo / demo123456，含 12 个月账单、账户、预算、目标、AI 会话
+```
+
+命令只会重建 `demo` 用户自己的数据，可重复执行；用于论文截图和手工验证界面。
 
 ## 本地开发
 
@@ -89,7 +119,8 @@ App 端：用 HBuilderX 打开 `mobile/` 目录，运行到 Android 真机。真
 | 流式接口通道（SSE + nginx 不缓冲） | ✅ 已验证（含经 nginx 逐事件到达） |
 | AI 对话（流式 / 非流式、Claude·OpenAI·DeepSeek·Qwen 适配器、工具循环、会话标题与摘要） | ✅ 可用，有测试；未用真实厂商接口验证 |
 | AI 账单解析 `parse-bills`（旧接口） | ✅ 可用，有测试 |
-| UniApp 主干页面（登录、首页、账单、记账、报表） | ✅ 可用 |
+| UniApp 主干页面（登录 / 注册、首页、账单、记账、统计） | ✅ 可用 |
+| 界面复刻原项目（Neo-Brutalism）：自绘导航栏 / 底部导航、全部页面重做 | ✅ 已在 H5 浏览器里逐页渲染并与原项目截图对照；App 端未验证 |
 | UniApp AI 对话页（流式回复、账单卡片确认保存、历史会话） | ✅ 可用，未在真机验证 |
 | 语音输入（按住说话）、拍照 / 相册识别 | ⚠️ 已实现，未在真机 / 浏览器验证；ASR 需配置 `ASR_API_URL` / `ASR_API_KEY` |
 | UniApp 预算、财务目标、分类管理（列表 + 新建 / 编辑 / 删除） | ✅ 可用，未在真机验证 |
@@ -98,7 +129,7 @@ App 端：用 HBuilderX 打开 `mobile/` 目录，运行到 Android 真机。真
 | UniApp 账户管理（资产 / 负债 / 净资产）、记账页选择账户与标签 | ✅ 可用，未在真机验证 |
 | UniApp 个人中心（资料、头像、改密码、检查更新） | ✅ 可用，未在真机验证 |
 | 通知自动记账（开关持久化、启动恢复、识别后确认再入账） | ⚠️ 逻辑有单测；依赖的 UTS 插件未验证 |
-| 报表图表（uCharts：支出构成环形图、日 / 月收支趋势，月 / 年切换） | ⚠️ 配置已用假 canvas 验证可绘制，未在浏览器 / 真机看过实际效果 |
+| 统计页（资产：净资产 / 趋势 / 构成；收支：日历 / 月 / 年），uCharts 图表 | ✅ 已在 H5 浏览器渲染验证；App 端 canvas 未验证 |
 | 通知监听 UTS 插件 | ⚠️ 骨架，未在 HBuilderX 中编译验证 |
 
 全局搜索 `TODO` 可以找到所有待实现的位置（目前只剩收据图片上传）。
