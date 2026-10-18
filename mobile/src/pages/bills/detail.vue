@@ -13,8 +13,8 @@
       <view v-if="bill.tags?.length" class="row"><text class="muted">标签</text><text>{{ bill.tags.join('、') }}</text></view>
     </view>
 
-    <!-- TODO: 编辑账单（复用 create 页面，传入 id 进入编辑模式） -->
     <view class="actions">
+      <button class="primary" @click="edit">编辑</button>
       <button type="warn" @click="remove">删除</button>
     </view>
   </view>
@@ -22,7 +22,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { billApi } from '@/api'
 import { formatSignedMoney } from '@/utils/format'
 
@@ -31,10 +31,13 @@ const SOURCE_LABELS = { manual: '手动', voice: '语音', ocr: '拍照', text: 
 const bill = ref(null)
 let billId
 
-onLoad(async (query) => {
-  billId = query.id
-  bill.value = await billApi.detail(billId)
-})
+const load = async () => { bill.value = await billApi.detail(billId) }
+
+onLoad((query) => { billId = query.id })
+// 编辑页返回后要刷新；onShow 在 onLoad 之后也会触发，所以首次加载也在这里
+onShow(() => load().catch(() => {}))
+
+const edit = () => uni.navigateTo({ url: `/pages/bills/create?id=${billId}` })
 
 function remove() {
   uni.showModal({
@@ -71,5 +74,12 @@ function remove() {
 }
 .actions {
   padding: 32rpx;
+  button + button {
+    margin-top: 24rpx;
+  }
+  .primary {
+    background: $ln-primary;
+    color: #fff;
+  }
 }
 </style>

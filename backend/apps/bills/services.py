@@ -31,8 +31,10 @@ def _category_breakdown(qs, total):
     } for r in rows]
 
 
-def get_statistics(user, start_date=None, end_date=None, granularity="daily"):
+def get_statistics(user, start_date=None, end_date=None, granularity="daily", category_id=None):
     qs = filter_by_date(Bill.objects.filter(user=user), start_date, end_date)
+    if category_id:
+        qs = qs.filter(category_id=category_id)
     income_qs, expense_qs = qs.filter(type="income"), qs.filter(type="expense")
 
     income = income_qs.aggregate(s=Sum("amount"), c=Count("id"))

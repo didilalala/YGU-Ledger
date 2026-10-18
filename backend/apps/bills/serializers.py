@@ -51,3 +51,4 @@ class StatisticsQuerySerializer(serializers.Serializer):
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
     granularity = serializers.ChoiceField(choices=["daily", "monthly"], default="daily")
+    category_id = serializers.IntegerField(required=False, help_text="只统计该分类（账单列表按分类筛选时用）")

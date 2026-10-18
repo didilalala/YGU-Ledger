@@ -5,7 +5,7 @@
         @clickItem="(e) => switchType(e.currentIndex === 0 ? 'expense' : 'income')" />
       <view class="amount-row">
         <text class="currency">¥</text>
-        <input v-model="form.amount" class="amount-input" type="digit" placeholder="0.00" focus />
+        <input v-model="form.amount" class="amount-input" type="digit" placeholder="0.00" :focus="!id" />
       </view>
     </view>
 
@@ -29,7 +29,7 @@
     </view>
 
     <view class="actions">
-      <button class="primary" :loading="saving" :disabled="saving" @click="save">保存</button>
+      <button class="primary" :loading="saving" :disabled="saving" @click="save">{{ id ? '保存修改' : '保存' }}</button>
     </view>
   </view>
 </template>
@@ -58,7 +58,23 @@ function switchType(type) {
   form.categoryId = null
 }
 
-onLoad(() => categoryStore.load().catch(() => {}))
+// 带 id 进入时是编辑模式：先取回账单填充表单
+const id = ref(null)
+
+onLoad(async (query) => {
+  await categoryStore.load().catch(() => {})
+  if (!query.id) return
+  id.value = Number(query.id)
+  uni.setNavigationBarTitle({ title: '编辑账单' })
+  const bill = await billApi.detail(id.value)
+  Object.assign(form, {
+    type: bill.type,
+    amount: String(bill.amount),
+    categoryId: bill.category?.id ?? null,
+    date: bill.date,
+    description: bill.description || '',
+  })
+})
 
 async function save() {
   const amount = Number(form.amount)
@@ -66,8 +82,10 @@ async function save() {
 
   saving.value = true
   try {
-    await billApi.create({ ...form, amount, source: 'manual' })
-    uni.showToast({ title: '已记账', icon: 'success' })
+    // 编辑时只提交表单里的字段，不改动来源、标签、账户等
+    if (id.value) await billApi.update(id.value, { ...form, amount })
+    else await billApi.create({ ...form, amount, source: 'manual' })
+    uni.showToast({ title: id.value ? '已保存' : '已记账', icon: 'success' })
     setTimeout(() => uni.navigateBack(), 500)
   } catch (e) {
     // 错误提示已由请求层统一处理

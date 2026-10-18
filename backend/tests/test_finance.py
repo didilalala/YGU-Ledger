@@ -179,3 +179,32 @@ def test_inactive_budget_listed_but_not_in_progress(client):
     assert client.get("/api/budgets/progress").json()["data"] == []  # 前端要自己从 list 补上停用的预算
     client.patch(f"/api/budgets/{budget['id']}", {"isActive": True}, format="json")
     assert len(client.get("/api/budgets/progress").json()["data"]) == 1
+
+
+def test_statistics_monthly_trend_with_category_filter(client):
+    food = Category.objects.create(name="餐饮", type="expense", is_default=True)
+    _create_bill(client, amount=30, categoryId=food.id, date="2026-09-20")
+    _create_bill(client, amount=50, categoryId=food.id, date="2026-10-02")
+    _create_bill(client, amount=999, date="2026-10-03")  # 无分类，筛选时不应计入
+    _create_bill(client, amount=1000, type="income", date="2026-10-05")
+
+    monthly = client.get("/api/bills/statistics", {"granularity": "monthly"}).json()["data"]
+    assert {t["period"]: t["expense"] for t in monthly["trend"]} == {"2026-09": 30.0, "2026-10": 1049.0}
+
+    filtered = client.get("/api/bills/statistics", {"granularity": "monthly", "categoryId": food.id}).json()["data"]
+    assert {t["period"]: t["expense"] for t in filtered["trend"]} == {"2026-09": 30.0, "2026-10": 50.0}
+    assert filtered["totalExpense"] == 80 and filtered["totalIncome"] == 0
+
+
+def test_bill_patch_partial_update(client, other_client):
+    food = Category.objects.create(name="餐饮", type="expense", is_default=True)
+    bill = _create_bill(client, amount=30, categoryId=food.id, date="2026-10-01", description="午饭")
+    bill_id = bill["id"]
+
+    resp = client.patch(f"/api/bills/{bill_id}", {"amount": 35.5, "categoryId": None}, format="json")
+    data = resp.json()["data"]
+    assert resp.status_code == 200 and data["amount"] == 35.5 and data["category"] is None
+    assert data["description"] == "午饭" and data["date"] == "2026-10-01"  # 没传的字段保持不变
+
+    # 不能越权修改别人的账单
+    assert other_client.patch(f"/api/bills/{bill_id}", {"amount": 1}, format="json").status_code == 404
