@@ -20,8 +20,11 @@
 		{ "path": "pages/ai/config", "style": { "navigationBarTitleText": "AI 模型" } },
 		{ "path": "pages/ai/config-edit", "style": { "navigationBarTitleText": "添加模型" } },
 		{ "path": "pages/budget/index", "style": { "navigationBarTitleText": "预算" } },
+		{ "path": "pages/budget/edit", "style": { "navigationBarTitleText": "新建预算" } },
 		{ "path": "pages/goal/index", "style": { "navigationBarTitleText": "财务目标" } },
+		{ "path": "pages/goal/edit", "style": { "navigationBarTitleText": "新建目标" } },
 		{ "path": "pages/category/index", "style": { "navigationBarTitleText": "分类管理" } },
+		{ "path": "pages/category/edit", "style": { "navigationBarTitleText": "添加分类" } },
 		{ "path": "pages/mine/notification", "style": { "navigationBarTitleText": "通知自动记账" } }
 	],
 	"tabBar": {

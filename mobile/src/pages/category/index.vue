@@ -3,13 +3,17 @@
     <view v-for="group in groups" :key="group.type" class="card">
       <text class="title">{{ group.label }}</text>
       <view class="grid">
-        <view v-for="c in group.items" :key="c.id" class="item">
+        <view v-for="c in group.items" :key="c.id" :class="['item', { mine: !c.isDefault }]" @click="open(c)">
           <text class="icon">{{ c.icon || '📝' }}</text>
           <text class="muted">{{ c.name }}</text>
         </view>
+        <view class="item add" @click="edit(null, group.type)">
+          <text class="icon">＋</text>
+          <text class="muted">添加</text>
+        </view>
       </view>
     </view>
-    <!-- TODO: 新增自定义分类（对应原项目 AddCategoryModal）、编辑与删除自己的分类 -->
+    <view class="muted tip">点击自己添加的分类可以编辑或删除；系统默认分类不能修改</view>
   </view>
 </template>
 
@@ -25,6 +29,13 @@ const groups = computed(() => [
 ])
 
 onShow(() => store.load(true).catch(() => {}))
+
+const edit = (id, type) => uni.navigateTo({ url: `/pages/category/edit?${id ? `id=${id}` : `type=${type}`}` })
+
+function open(c) {
+  if (c.isDefault) return uni.showToast({ title: '系统默认分类不能修改', icon: 'none' })
+  edit(c.id)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -42,8 +53,15 @@ onShow(() => store.load(true).catch(() => {}))
   flex-direction: column;
   align-items: center;
   padding: 16rpx 0;
+  &.add {
+    opacity: 0.6;
+  }
 }
 .icon {
   font-size: 44rpx;
+}
+.tip {
+  text-align: center;
+  padding: 0 32rpx 32rpx;
 }
 </style>

@@ -87,3 +87,95 @@ def test_account_balance(client):
     client.post("/api/accounts", {"name": "银行卡", "type": "bank_card", "balance": 100.5}, format="json")
     client.post("/api/accounts", {"name": "现金", "type": "cash", "balance": 20}, format="json")
     assert client.get("/api/accounts/balance").json()["data"]["totalBalance"] == 120.5
+
+
+# ---------------------------------------------------------------- 目标
+
+def test_goal_crud_and_progress(client, other_client):
+    created = client.post("/api/financial-goals", {"name": "旅行基金", "targetAmount": 5000, "currentAmount": 1250,
+                                                  "deadline": "2027-01-01", "icon": "✈️"}, format="json")
+    assert created.status_code == 201
+    goal = created.json()["data"]
+    assert goal["progress"] == 25.0 and goal["isCompleted"] is False
+
+    patched = client.patch(f"/api/financial-goals/{goal['id']}",
+                           {"currentAmount": 6000, "isCompleted": True, "deadline": None}, format="json").json()["data"]
+    assert patched["progress"] == 100.0 and patched["isCompleted"] is True and patched["deadline"] is None
+
+    summary = client.get("/api/financial-goals/progress").json()["data"]
+    assert summary["totalGoals"] == 1 and summary["completedGoals"] == 1 and summary["overallProgress"] == 120.0
+
+    # 别人看不到、改不了、删不掉
+    assert other_client.get("/api/financial-goals").json()["data"] == []
+    assert other_client.patch(f"/api/financial-goals/{goal['id']}", {"name": "x"}, format="json").status_code == 404
+    assert other_client.delete(f"/api/financial-goals/{goal['id']}").status_code == 404
+
+    assert client.delete(f"/api/financial-goals/{goal['id']}").json()["message"] == "删除成功"
+    assert client.get("/api/financial-goals").json()["data"] == []
+
+
+def test_goal_rejects_negative_amount(client):
+    resp = client.post("/api/financial-goals", {"name": "x", "targetAmount": -1}, format="json")
+    assert resp.status_code == 400 and resp.json()["success"] is False
+
+
+# ---------------------------------------------------------------- 分类
+
+def test_custom_category_edit_and_delete(client, other_client):
+    cat = client.post("/api/categories", {"name": "宠物", "type": "expense", "icon": "🐶"}, format="json").json()["data"]
+    assert cat["isDefault"] is False
+
+    renamed = client.patch(f"/api/categories/{cat['id']}", {"name": "宠物用品", "icon": None}, format="json")
+    assert renamed.status_code == 200 and renamed.json()["data"]["name"] == "宠物用品"
+
+    # 别人的分类看不到，也不能改
+    assert cat["id"] not in [c["id"] for c in other_client.get("/api/categories").json()["data"]]
+    assert other_client.patch(f"/api/categories/{cat['id']}", {"name": "x"}, format="json").status_code == 404
+    assert other_client.delete(f"/api/categories/{cat['id']}").status_code == 404
+
+    assert client.delete(f"/api/categories/{cat['id']}").status_code == 200
+    assert cat["id"] not in [c["id"] for c in client.get("/api/categories").json()["data"]]
+
+
+def test_default_category_is_read_only(client):
+    from apps.categories.models import Category
+
+    default = Category.objects.create(user=None, name="餐饮", type="expense", icon="🍔", is_default=True)
+    assert default.id in [c["id"] for c in client.get("/api/categories").json()["data"]]  # 看得到
+    assert client.patch(f"/api/categories/{default.id}", {"name": "x"}, format="json").status_code == 404
+    assert client.delete(f"/api/categories/{default.id}").status_code == 404
+    default.refresh_from_db()
+    assert default.name == "餐饮"
+
+
+def test_deleting_category_keeps_bills_uncategorized(client):
+    cat = client.post("/api/categories", {"name": "临时", "type": "expense"}, format="json").json()["data"]
+    bill = client.post("/api/bills", {"amount": 10, "type": "expense", "date": "2026-10-01",
+                                      "categoryId": cat["id"]}, format="json").json()["data"]
+    client.delete(f"/api/categories/{cat['id']}")
+    after = client.get(f"/api/bills/{bill['id']}").json()["data"]
+    assert after["category"] is None  # 账单还在，只是变成未分类
+
+
+# ---------------------------------------------------------------- 预算
+
+def test_budget_validation(client, other_client):
+    base = {"name": "餐饮", "amount": 1000, "period": "monthly"}
+    assert client.post("/api/budgets", {**base, "alertAt": 0}, format="json").status_code == 400
+    assert client.post("/api/budgets", {**base, "alertAt": 101}, format="json").status_code == 400
+    assert client.post("/api/budgets", {**base, "period": "weekly"}, format="json").status_code == 400
+    assert client.post("/api/budgets", {**base, "amount": -5}, format="json").status_code == 400
+    # 不能把预算挂到别人的分类上
+    theirs = other_client.post("/api/categories", {"name": "私有", "type": "expense"}, format="json").json()["data"]
+    assert client.post("/api/budgets", {**base, "categoryId": theirs["id"]}, format="json").status_code == 400
+    assert client.post("/api/budgets", {**base, "alertAt": 100}, format="json").status_code == 201
+
+
+def test_inactive_budget_listed_but_not_in_progress(client):
+    budget = client.post("/api/budgets", {"name": "总预算", "amount": 2000, "period": "monthly"},
+                         format="json").json()["data"]
+    client.patch(f"/api/budgets/{budget['id']}", {"isActive": False}, format="json")
+    assert [b["id"] for b in client.get("/api/budgets").json()["data"]] == [budget["id"]]
+    assert client.get("/api/budgets/progress").json()["data"] == []  # 前端要自己从 list 补上停用的预算
+    client.patch(f"/api/budgets/{budget['id']}", {"isActive": True}, format="json")
+    assert len(client.get("/api/budgets/progress").json()["data"]) == 1

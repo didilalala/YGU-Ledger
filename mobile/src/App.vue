@@ -27,6 +27,44 @@ page {
   margin: 24rpx 32rpx;
 }
 
+/* 表单页公共样式：一行一个字段，左标签右输入 */
+.form-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid $ln-border;
+  &:last-child {
+    border-bottom: none;
+  }
+  .label {
+    flex-shrink: 0;
+  }
+  input {
+    flex: 1;
+    text-align: right;
+  }
+  .value {
+    color: $ln-primary;
+  }
+}
+
+.form-actions {
+  padding: 32rpx;
+  button + button {
+    margin-top: 24rpx;
+  }
+  .primary {
+    background: $ln-primary;
+    color: #fff;
+  }
+  .danger {
+    background: #fff;
+    color: $ln-expense;
+  }
+}
+
 .income {
   color: $ln-income;
 }
