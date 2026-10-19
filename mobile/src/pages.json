@@ -32,8 +32,8 @@
 		{ "path": "pages/mine/notification", "style": { "navigationBarTitleText": "通知自动记账" } }
 	],
 	"tabBar": {
-		"color": "#737373",
-		"selectedColor": "#1a1a1a",
+		"color": "#6F6A9C",
+		"selectedColor": "#2F2A5C",
 		"backgroundColor": "#ffffff",
 		"borderStyle": "black",
 		"list": [

@@ -29,7 +29,7 @@
       </view>
       <view class="form-field row">
         <text class="label">已完成</text>
-        <switch :checked="form.isCompleted" color="#16a34a" @change="form.isCompleted = $event.detail.value" />
+        <switch :checked="form.isCompleted" color="#2A9D76" @change="form.isCompleted = $event.detail.value" />
       </view>
     </view>
     <view class="form-actions">

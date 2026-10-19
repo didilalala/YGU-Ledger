@@ -19,7 +19,7 @@ export default {
 </script>
 
 <style lang="scss">
-/* ========== 全局样式（Neo-Brutalism，复刻原项目） ========== */
+/* ========== 全局样式（Claymorphism 黏土拟态） ========== */
 page {
   background-color: $ln-bg;
   color: $ln-text;
@@ -44,13 +44,13 @@ picker {
   padding-bottom: calc(190rpx + env(safe-area-inset-bottom));
 }
 
-/* 卡片：白底 + 粗黑描边 + 实心偏移阴影 */
+/* 卡片：白色黏土块，大圆角 + 柔和浮起 */
 .card {
   background: $ln-card;
   padding: 32rpx;
   margin: 24rpx 32rpx 36rpx;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(8rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(8rpx);
 }
 
 /* 表单页：字段直接放在背景上，不套卡片 */
@@ -83,7 +83,8 @@ picker {
     font-weight: 700;
     color: $ln-text;
     background: $ln-card;
-    @include brutal-box($ln-r-md);
+    border-radius: $ln-r-md;
+    @include clay-inset(6rpx); /* 输入框是凹进去的 */
   }
   .value {
     justify-content: space-between;
@@ -91,7 +92,6 @@ picker {
     &.readonly {
       color: $ln-text-secondary;
       background: $ln-border;
-      border-color: $ln-text-quaternary;
     }
   }
   /* 开关等"标签在左、控件在右"的行 */
@@ -108,7 +108,7 @@ picker {
   }
 }
 
-/* 按钮：粗描边 + 实心阴影，按下时压到阴影上 */
+/* 按钮：鼓鼓的黏土块，按下时捏扁一点 */
 .btn,
 .form-actions button {
   display: flex;
@@ -123,21 +123,22 @@ picker {
   line-height: 1;
   color: $ln-text;
   background: $ln-card;
-  @include brutal-box($ln-r-md);
-  @include brutal-shadow(6rpx);
-  @include brutal-press(6rpx);
+  @include clay-box($ln-r-md);
+  @include clay-shadow(6rpx);
+  @include clay-press(6rpx);
   &::after {
     display: none; /* uni 的 button 自带一圈边框，去掉 */
   }
   &[disabled] {
     color: $ln-text-secondary;
     background: $ln-border;
-    box-shadow: none;
+    @include clay-inset(4rpx);
   }
 }
 .btn-primary,
 .form-actions .primary {
   color: #fff;
+  text-shadow: 0 2rpx 0 rgba(70, 40, 160, 0.35);
   background: $ln-primary;
 }
 .btn-accent {
@@ -148,8 +149,7 @@ picker {
   padding: 0 28rpx;
   font-size: 26rpx;
   border-radius: $ln-r-sm;
-  border-width: $ln-bw-thin;
-  box-shadow: 4rpx 4rpx 0 $ln-stroke;
+  @include clay-shadow(4rpx);
 }
 .form-actions {
   padding: 32rpx 32rpx 48rpx;
@@ -162,7 +162,7 @@ picker {
   }
 }
 
-/* 徽章：小块的描边标签，如金额、百分比 */
+/* 徽章：小块的黏土标签，如金额、百分比 */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -171,7 +171,7 @@ picker {
   font-weight: 800;
   font-family: $ln-mono;
   background: $ln-accent;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
   &.income {
     color: $ln-income;
     background: $ln-income-bg;

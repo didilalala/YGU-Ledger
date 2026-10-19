@@ -25,7 +25,7 @@
           <text class="perm-label">自动记账</text>
           <text class="hint">识别到支付通知时先弹窗确认，再入账</text>
         </view>
-        <switch :checked="listening" :disabled="!enabled" color="#3B82F6" @change="toggle" />
+        <switch :checked="listening" :disabled="!enabled" color="#8F78E6" @change="toggle" />
       </view>
       <text class="tip">通知内容只在本机解析。部分手机还需要在电池设置中允许 LiteNote 后台运行，否则可能漏记。</text>
     </view>
@@ -101,7 +101,7 @@ function toggle(e) {
   padding: 32rpx;
   margin: 32rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
+  @include clay-box($ln-r-lg);
 }
 .p-head {
   display: flex;
@@ -116,7 +116,7 @@ function toggle(e) {
   width: 96rpx;
   height: 96rpx;
   background: $ln-accent;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, 6rpx);
 }
 .p-title {
   display: block;
@@ -132,7 +132,7 @@ function toggle(e) {
 .line {
   height: $ln-bw-thin;
   margin: 28rpx 0;
-  background: $ln-stroke;
+  background: $ln-divider;
 }
 .perm {
   display: flex;
@@ -157,7 +157,6 @@ function toggle(e) {
   padding: 6rpx 20rpx;
   font-size: 26rpx;
   font-weight: 800;
-  border: $ln-bw-thin solid $ln-stroke;
   border-radius: $ln-r-sm;
   &.on {
     color: #fff;
@@ -174,10 +173,8 @@ function toggle(e) {
   font-size: 26rpx;
   font-weight: 800;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
-  &:active {
-    background: $ln-accent;
-  }
+  @include clay-box($ln-r-sm, $ln-bw-thin);
+  @include clay-press($ln-bw-thin);
 }
 .open-btn {
   margin-top: 20rpx;
@@ -198,7 +195,7 @@ function toggle(e) {
 .log {
   padding: 12rpx 0;
   font-size: 24rpx;
-  border-bottom: 2rpx solid $ln-border;
+  border-bottom: 2rpx solid $ln-divider;
   word-break: break-all;
 }
 </style>

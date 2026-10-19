@@ -72,7 +72,7 @@ const rangeText = `${months[0].year}.${months[0].month} – ${months[11].year}.$
 
 const trend = computed(() => cumulativeNet(months, trendToMap(stats.value.trend)))
 const hasTrend = computed(() => stats.value.trend.length > 0)
-const trendSeries = computed(() => [{ name: '净资产', data: trend.value.values, color: '#3B82F6' }])
+const trendSeries = computed(() => [{ name: '净资产', data: trend.value.values, color: '#8F78E6' }])
 
 const items = computed(() => (kind.value === 'expense' ? stats.value.expenseByCategory : stats.value.incomeByCategory))
 const rows = computed(() => compositionRows(items.value))
@@ -95,7 +95,7 @@ defineExpose({ refresh: load })
   margin: 0 32rpx 40rpx;
   color: #fff;
   background: $ln-primary;
-  @include brutal-box($ln-r-lg, $ln-bw-thick);
+  @include clay-box($ln-r-lg, 12rpx);
 }
 .b-label {
   display: block;
@@ -131,10 +131,10 @@ defineExpose({ refresh: load })
   font-weight: 900;
 }
 .income-c {
-  color: #4ade80;
+  color: #5cc9a0;
 }
 .expense-c {
-  color: #f87171;
+  color: #ff7a6e;
 }
 .b-divider {
   width: $ln-bw-thin;
@@ -146,7 +146,7 @@ defineExpose({ refresh: load })
   padding: 32rpx;
   margin: 0 32rpx 40rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg, $ln-bw-thick);
+  @include clay-box($ln-r-lg, $ln-bw-thick);
 }
 .panel-head {
   display: flex;
@@ -174,12 +174,11 @@ defineExpose({ refresh: load })
   font-size: 26rpx;
   font-weight: 800;
   color: $ln-text-secondary;
-  border: $ln-bw-thin solid transparent;
   border-radius: $ln-r-sm;
   &.on {
     color: $ln-text;
     background: $ln-accent;
-    border-color: $ln-stroke;
+    @include clay-shadow(4rpx);
   }
 }
 .comp {

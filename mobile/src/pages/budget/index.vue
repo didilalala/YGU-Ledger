@@ -30,7 +30,7 @@
         </view>
 
         <template v-if="b.isActive">
-          <ln-progress :percent="Math.min(b.percentage, 100)" :color="b.isOverBudget ? '#EF4444' : b.isAlert ? '#F97316' : '#3B82F6'" :height="28" />
+          <ln-progress :percent="Math.min(b.percentage, 100)" :color="b.isOverBudget ? '#FF7A6E' : b.isAlert ? '#FFAE7A' : '#8F78E6'" :height="28" />
           <view class="amounts mono">
             <text class="spent">已用 ¥{{ formatMoney(b.spent) }}</text>
             <text class="total">/ 预算 ¥{{ formatMoney(b.amount) }}</text>
@@ -85,7 +85,7 @@ onPullDownRefresh(async () => {
 const categoryOf = (b) => b.categoryId && categoryStore.list.find((x) => x.id === b.categoryId)
 const categoryName = (b) => categoryOf(b)?.name || '总预算'
 const iconOf = (b) => categoryOf(b)?.icon || '📊'
-const iconColor = (b) => (categoryOf(b) ? categoryColor(categoryOf(b).name) : '#3B82F6')
+const iconColor = (b) => (categoryOf(b) ? categoryColor(categoryOf(b).name) : '#8F78E6')
 
 const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}` : ''}` })
 </script>
@@ -98,17 +98,15 @@ const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}`
   width: 72rpx;
   height: 72rpx;
   background: $ln-accent;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
-  &:active {
-    background: #eab308;
-  }
+  @include clay-box($ln-r-sm, $ln-bw-thin);
 }
 .summary {
   display: flex;
   align-items: center;
   padding: 24rpx 0;
+  margin: 8rpx 32rpx 0;
   background: $ln-card;
-  border-bottom: $ln-bw-thin solid $ln-stroke;
+  @include clay-box($ln-r-lg, 8rpx);
 }
 .s-item {
   flex: 1;
@@ -140,8 +138,8 @@ const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}`
   padding: 32rpx;
   margin: 0 8rpx 36rpx 0;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(8rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(8rpx);
   &.off {
     opacity: 0.65;
   }
@@ -166,7 +164,7 @@ const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}`
   width: 88rpx;
   height: 88rpx;
   font-size: 42rpx;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, $ln-bw-thin);
 }
 .b-name {
   display: block;
@@ -189,8 +187,8 @@ const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}`
   font-size: 22rpx;
   font-weight: 700;
   background: $ln-primary-light;
-  border: $ln-bw-thin solid $ln-stroke;
-  border-radius: 12rpx;
+  border-radius: 16rpx;
+  color: $ln-primary-dark;
 }
 .badge.over {
   color: #fff;
@@ -216,7 +214,6 @@ const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}`
   font-weight: 800;
   color: $ln-error;
   background: $ln-expense-bg;
-  border: $ln-bw-thin solid $ln-error;
   border-radius: $ln-r-sm;
 }
 .actions {
@@ -232,9 +229,9 @@ const edit = (id) => uni.navigateTo({ url: `/pages/budget/edit${id ? `?id=${id}`
   font-size: 26rpx;
   font-weight: 800;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
-  @include brutal-shadow(4rpx);
-  @include brutal-press(4rpx);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
+  @include clay-shadow(4rpx);
+  @include clay-press(4rpx);
 }
 .empty {
   display: flex;

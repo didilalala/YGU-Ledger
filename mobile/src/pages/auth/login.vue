@@ -100,8 +100,7 @@ async function submit() {
   margin-bottom: 32rpx;
   overflow: hidden;
   background: $ln-accent;
-  @include brutal-box($ln-r-lg, $ln-bw-thick);
-  @include brutal-shadow(8rpx);
+  @include clay-box($ln-r-lg, 14rpx);
 }
 .logo {
   width: 100%;
@@ -110,7 +109,6 @@ async function submit() {
 .app-title {
   font-size: 64rpx;
   font-weight: 900;
-  letter-spacing: -1rpx;
 }
 .subtitle {
   margin-top: 8rpx;
@@ -121,15 +119,15 @@ async function submit() {
 .form-card {
   padding: 40rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(8rpx);
-  margin-right: 8rpx;
+  @include clay-box($ln-r-lg, 10rpx);
 }
 .mode-toggle {
   display: flex;
   margin-bottom: 40rpx;
-  overflow: hidden;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  padding: 8rpx;
+  background: $ln-primary-light;
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
 }
 .mode-btn {
   flex: 1;
@@ -138,10 +136,11 @@ async function submit() {
   font-size: 30rpx;
   font-weight: 700;
   color: $ln-text-secondary;
-  background: $ln-card;
+  border-radius: $ln-r-sm;
   &.active {
     color: #fff;
     background: $ln-primary;
+    @include clay-shadow(4rpx);
   }
 }
 .input-group {
@@ -156,10 +155,11 @@ async function submit() {
   padding: 0 32rpx;
   font-size: 30rpx;
   font-weight: 600;
-  background: $ln-bg;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  background: $ln-card;
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
   &.error {
-    border-color: $ln-error;
+    background: $ln-expense-bg;
   }
 }
 .ph {
@@ -181,7 +181,6 @@ async function submit() {
   font-weight: 600;
   color: $ln-error;
   background: $ln-expense-bg;
-  border: $ln-bw-thin solid $ln-error;
   border-radius: $ln-r-sm;
 }
 .submit {
@@ -194,15 +193,15 @@ async function submit() {
   font-weight: 800;
   color: #fff;
   background: $ln-primary;
-  @include brutal-box($ln-r-md);
-  @include brutal-shadow(6rpx);
-  @include brutal-press(6rpx);
+  text-shadow: 0 2rpx 0 rgba(70, 40, 160, 0.35);
+  @include clay-box($ln-r-md, 8rpx);
+  @include clay-press(8rpx);
   &::after {
     display: none;
   }
   &[disabled] {
     background: $ln-text-quaternary;
-    box-shadow: none;
+    @include clay-inset(4rpx);
   }
 }
 </style>

@@ -25,17 +25,17 @@ const shortDate = (d) => `${Number(d.slice(5, 7))}月${Number(d.slice(8, 10))}�
 </script>
 
 <style lang="scss" scoped>
-/* 一行账单：彩色分类块 + 标题/元信息 + 带描边的金额徽章，对应原项目的 TransactionItem */
+/* 一行账单：彩色分类块 + 标题/元信息 + 圆润的金额徽章，对应原项目的 TransactionItem */
 .bill-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 24rpx;
-  margin: 0 8rpx 28rpx 0;
+  margin: 0 8rpx 32rpx 0;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(6rpx);
-  @include brutal-press(6rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(6rpx);
+  @include clay-press(6rpx);
 }
 .left {
   display: flex;
@@ -52,7 +52,8 @@ const shortDate = (d) => `${Number(d.slice(5, 7))}月${Number(d.slice(8, 10))}�
   height: 96rpx;
   margin-right: 24rpx;
   font-size: 44rpx;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, $ln-bw-thin);
+  text-shadow: 0 2rpx 0 rgba(255, 255, 255, 0.5);
 }
 .info {
   min-width: 0;

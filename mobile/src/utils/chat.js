@@ -5,8 +5,8 @@
 
 /** 账单预览卡的配色：支出偏橙、收入偏绿，与原项目一致 */
 export const BILL_TONES = {
-  expense: { bg: '#FFF3E0', border: '#FFCC80', iconBg: '#FFCC80', amount: '#FF5722' },
-  income: { bg: '#E8F5E9', border: '#C8E6C9', iconBg: '#C8E6C9', amount: '#4CAF50' },
+  expense: { bg: '#FFF1EE', border: '#FFC7BF', iconBg: '#FFC7BF', amount: '#E0564D' },
+  income: { bg: '#E6F8F0', border: '#BFEBD8', iconBg: '#BFEBD8', amount: '#2A9D76' },
 }
 
 const money = (v) => `¥${Number(v || 0).toFixed(2)}`

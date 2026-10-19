@@ -1,23 +1,23 @@
 /**
- * 分类色块的配色（Neo-Brutalism 饱和糖果色）。
+ * 分类色块的配色（Claymorphism 马卡龙粉彩）。
  * 原项目对常用分类写死了颜色；用户自定义分类没有预设，这里按名称稳定地从调色板里选一个，
  * 保证同一个分类每次都是同一种颜色。
  */
 const FIXED = {
-  餐饮: '#FACC15', // 明黄
-  交通: '#3B82F6', // 蓝
-  购物: '#EC4899', // 粉
-  娱乐: '#A855F7', // 紫
-  医疗: '#EF4444', // 红
-  教育: '#F97316', // 橙
-  住房: '#06B6D4', // 青
-  工资: '#22C55E', // 绿
-  奖金: '#84CC16', // 柠檬绿
-  投资: '#22C55E',
-  兼职: '#06B6D4',
+  餐饮: '#FFD86B', // 奶黄
+  交通: '#8FC0FA', // 天蓝
+  购物: '#FF9EC4', // 粉
+  娱乐: '#B79CF5', // 薰衣草
+  医疗: '#FF8A80', // 珊瑚
+  教育: '#FFAE7A', // 杏橙
+  住房: '#7FD8E8', // 冰青
+  工资: '#7ADBB0', // 薄荷
+  奖金: '#B6E57A', // 青柠
+  投资: '#7ADBB0',
+  兼职: '#7FD8E8',
 }
-const PALETTE = ['#FACC15', '#3B82F6', '#EC4899', '#A855F7', '#F97316', '#06B6D4', '#22C55E', '#84CC16']
-const UNCATEGORIZED = '#E5E5E5'
+const PALETTE = ['#FFD86B', '#8FC0FA', '#FF9EC4', '#B79CF5', '#FFAE7A', '#7FD8E8', '#7ADBB0', '#B6E57A']
+const UNCATEGORIZED = '#E8E2F8'
 
 export function categoryColor(name) {
   if (!name) return UNCATEGORIZED

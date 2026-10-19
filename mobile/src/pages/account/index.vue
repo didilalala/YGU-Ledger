@@ -46,8 +46,8 @@ const balance = ref({ totalAssets: 0, totalLiabilities: 0, netWorth: 0 })
 const loaded = ref(false)
 
 const fixed = (v) => Number(v || 0).toFixed(2)
-const COLORS = { bank_card: '#7EB6FF', e_wallet: '#7DCEA0', credit_card: '#FF90B3', cash: '#FFD93D' }
-const typeColor = (t) => COLORS[t] || '#E5E5E5'
+const COLORS = { bank_card: '#8FC0FA', e_wallet: '#7ADBB0', credit_card: '#FF9EC4', cash: '#FFD86B' }
+const typeColor = (t) => COLORS[t] || '#E8E2F8'
 
 onShow(async () => {
   const [list, total] = await Promise.all([accountApi.list(), accountApi.balance()])
@@ -67,15 +67,14 @@ const edit = (id) => uni.navigateTo({ url: `/pages/account/edit${id ? `?id=${id}
   width: 72rpx;
   height: 72rpx;
   background: $ln-accent;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
 }
 .summary {
   padding: 40rpx;
   margin: 32rpx 32rpx 8rpx;
   color: #fff;
   background: $ln-primary;
-  @include brutal-box($ln-r-lg, $ln-bw-thick);
-  @include brutal-shadow(10rpx);
+  @include clay-box($ln-r-lg, 14rpx);
 }
 .s-label {
   display: block;
@@ -88,7 +87,6 @@ const edit = (id) => uni.navigateTo({ url: `/pages/account/edit${id ? `?id=${id}
   margin: 12rpx 0 28rpx;
   font-size: 72rpx;
   font-weight: 900;
-  letter-spacing: -2rpx;
 }
 .s-row {
   display: flex;
@@ -110,10 +108,10 @@ const edit = (id) => uni.navigateTo({ url: `/pages/account/edit${id ? `?id=${id}
   font-weight: 900;
 }
 .income-c {
-  color: #4ade80;
+  color: #5CC9A0;
 }
 .expense-c {
-  color: #f87171;
+  color: #FF7A6E;
 }
 .s-vdiv {
   width: $ln-bw-thin;
@@ -131,9 +129,9 @@ const edit = (id) => uni.navigateTo({ url: `/pages/account/edit${id ? `?id=${id}
   padding: 24rpx;
   margin: 0 8rpx 28rpx 0;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(6rpx);
-  @include brutal-press(6rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(6rpx);
+  @include clay-press(6rpx);
 }
 .a-icon {
   display: flex;
@@ -143,7 +141,7 @@ const edit = (id) => uni.navigateTo({ url: `/pages/account/edit${id ? `?id=${id}
   width: 96rpx;
   height: 96rpx;
   font-size: 44rpx;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, 6rpx);
 }
 .a-info {
   flex: 1;

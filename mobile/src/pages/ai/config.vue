@@ -75,7 +75,7 @@ async function remove(c) {
   padding: 32rpx;
   margin: 32rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
+  @include clay-box($ln-r-lg);
 }
 .panel-head {
   display: flex;
@@ -94,7 +94,8 @@ async function remove(c) {
   padding: 28rpx;
   margin-bottom: 24rpx;
   background: $ln-bg;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
 }
 .cfg-head {
   display: flex;
@@ -138,21 +139,16 @@ async function remove(c) {
   font-size: 28rpx;
   font-weight: 800;
   background: $ln-card;
-  border: $ln-bw-thin solid;
-  border-radius: $ln-r-sm;
+  @include clay-box($ln-r-sm, 4rpx);
+  @include clay-press(4rpx);
   &.blue {
     color: $ln-primary;
-    border-color: $ln-stroke;
   }
   &.red {
     color: $ln-error;
-    border-color: $ln-stroke;
   }
   &.busy {
     opacity: 0.5;
-  }
-  &:active {
-    background: $ln-accent;
   }
 }
 .add-btn {
@@ -165,10 +161,7 @@ async function remove(c) {
   font-size: 32rpx;
   font-weight: 800;
   background: $ln-accent;
-  @include brutal-box($ln-r-md);
-  @include brutal-press(0rpx);
-  &:active {
-    background: #eab308;
-  }
+  @include clay-box($ln-r-md, 8rpx);
+  @include clay-press(8rpx);
 }
 </style>

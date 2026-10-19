@@ -83,23 +83,21 @@ function save() {
   z-index: 1000;
   display: flex;
   align-items: flex-end;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(47, 42, 92, 0.45);
 }
 .sheet {
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
   background: $ln-card;
-  border: $ln-bw-thick solid $ln-stroke;
-  border-bottom: none;
   border-radius: $ln-r-lg $ln-r-lg 0 0;
+  box-shadow: 0 -12rpx 40rpx rgba(120, 100, 190, 0.3);
 }
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 32rpx;
-  border-bottom: $ln-bw-thin solid $ln-stroke;
 }
 .title {
   font-size: 38rpx;
@@ -111,7 +109,7 @@ function save() {
   justify-content: center;
   width: 72rpx;
   height: 72rpx;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
 }
 .body {
   padding: 16rpx 32rpx;
@@ -133,8 +131,9 @@ function save() {
   padding: 0 28rpx;
   font-size: 30rpx;
   font-weight: 700;
-  background: $ln-bg;
-  @include brutal-box($ln-r-md);
+  background: $ln-card;
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
   &.between {
     justify-content: space-between;
   }
@@ -143,7 +142,6 @@ function save() {
   display: flex;
   gap: 24rpx;
   padding: 24rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
-  border-top: $ln-bw-thin solid $ln-stroke;
   .btn {
     flex: 1;
   }

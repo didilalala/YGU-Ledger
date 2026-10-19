@@ -182,7 +182,8 @@ const goDetail = (bill) => uni.navigateTo({ url: `/pages/bills/detail?id=${bill.
 .filter-bar {
   padding: 24rpx 32rpx;
   background: $ln-card;
-  border-bottom: $ln-bw-thin solid $ln-stroke;
+  border-radius: 0 0 $ln-r-md $ln-r-md;
+  box-shadow: 0 10rpx 28rpx rgba(120, 100, 190, 0.16);
 }
 .chips-scroll {
   white-space: nowrap;
@@ -200,11 +201,12 @@ const goDetail = (bill) => uni.navigateTo({ url: `/pages/bills/detail?id=${bill.
   font-weight: 700;
   color: $ln-text-secondary;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
   &.active {
     color: #fff;
     font-weight: 800;
     background: $ln-primary;
+    @include clay-shadow(6rpx);
   }
 }
 .chip-sep {
@@ -226,11 +228,10 @@ const goDetail = (bill) => uni.navigateTo({ url: `/pages/bills/detail?id=${bill.
   font-weight: 700;
   color: $ln-text-secondary;
   background: $ln-bg;
-  border: $ln-bw-thin solid $ln-border;
   border-radius: $ln-r-sm;
+  @include clay-inset(4rpx);
   &.set {
-    color: $ln-text;
-    border-color: $ln-stroke;
+    color: $ln-primary-dark;
   }
 }
 .to {
@@ -254,9 +255,9 @@ const goDetail = (bill) => uni.navigateTo({ url: `/pages/bills/detail?id=${bill.
   align-items: center;
   justify-content: space-between;
   padding: 20rpx 32rpx;
-  background: $ln-card;
-  border-top: $ln-bw-thin solid $ln-stroke;
-  border-bottom: $ln-bw-thin solid $ln-stroke;
+  margin: 0 32rpx;
+  border-radius: $ln-r-md;
+  background: $ln-primary-light;
 }
 .month-title {
   font-size: 30rpx;

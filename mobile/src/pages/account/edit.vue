@@ -22,7 +22,7 @@
       </view>
       <view class="form-field row">
         <text class="label">设为默认账户</text>
-        <switch :checked="form.isDefault" color="#4f6ef7" @change="form.isDefault = $event.detail.value" />
+        <switch :checked="form.isDefault" color="#8f78e6" @change="form.isDefault = $event.detail.value" />
       </view>
     </view>
     <view class="muted tip">

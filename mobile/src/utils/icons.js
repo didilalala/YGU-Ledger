@@ -41,7 +41,7 @@ export const ICONS = {
 }
 
 /** 返回内嵌 SVG 的 data URI；name 不存在时返回 null */
-export function iconUri(name, color = '#1A1A1A', stroke = 2.5) {
+export function iconUri(name, color = '#2F2A5C', stroke = 2.5) {
   const body = ICONS[name]
   if (!body) return null
   const svg =

@@ -10,7 +10,7 @@ const props = defineProps({
   name: { type: String, required: true },
   /** 边长，单位 rpx */
   size: { type: Number, default: 40 },
-  color: { type: String, default: '#1A1A1A' },
+  color: { type: String, default: '#2F2A5C' },
   stroke: { type: Number, default: 2.5 },
 })
 

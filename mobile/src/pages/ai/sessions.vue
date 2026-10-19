@@ -11,7 +11,7 @@
           <text class="s-title">{{ s.title || '新对话' }}</text>
           <text class="s-meta mono">{{ s.updatedAt.slice(0, 10) }}</text>
         </view>
-        <ln-icon name="chevron-right" :size="36" color="#737373" />
+        <ln-icon name="chevron-right" :size="36" color="#6F6A9C" />
       </view>
 
       <view v-if="loaded && !sessions.length" class="empty">
@@ -73,7 +73,8 @@ function more(s) {
   font-weight: 700;
   color: #fff;
   background: $ln-primary;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, 6rpx);
+  @include clay-press(6rpx);
 }
 .list {
   padding: 32rpx;
@@ -85,10 +86,8 @@ function more(s) {
   padding: 24rpx;
   margin-bottom: 20rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg, $ln-bw-thin);
-  &:active {
-    background: $ln-bg;
-  }
+  @include clay-box($ln-r-lg, 8rpx);
+  @include clay-press(8rpx);
 }
 .s-icon {
   display: flex;
@@ -99,7 +98,7 @@ function more(s) {
   height: 80rpx;
   font-size: 38rpx;
   background: $ln-accent;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, 6rpx);
 }
 .s-info {
   flex: 1;

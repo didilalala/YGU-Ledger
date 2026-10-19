@@ -3,19 +3,19 @@
     <view class="ln-tabbar">
       <view v-for="tab in LEFT" :key="tab.key" class="tab" @click="go(tab)">
         <view :class="['icon-box', { active: current === tab.key }]">
-          <ln-icon :name="tab.icon" :size="40" :color="current === tab.key ? '#1A1A1A' : '#737373'" />
+          <ln-icon :name="tab.icon" :size="40" :color="current === tab.key ? '#2F2A5C' : '#A9A4CF'" />
         </view>
         <text :class="['label', { active: current === tab.key }]">{{ tab.label }}</text>
       </view>
 
       <view class="tab add" @click="add">
-        <view class="add-btn"><ln-icon name="plus" :size="44" :stroke="3.5" /></view>
+        <view class="add-btn"><ln-icon name="plus" :size="48" :stroke="4" color="#FFFFFF" /></view>
         <text class="label">记账</text>
       </view>
 
       <view v-for="tab in RIGHT" :key="tab.key" class="tab" @click="go(tab)">
         <view :class="['icon-box', { active: current === tab.key }]">
-          <ln-icon :name="tab.icon" :size="40" :color="current === tab.key ? '#1A1A1A' : '#737373'" />
+          <ln-icon :name="tab.icon" :size="40" :color="current === tab.key ? '#2F2A5C' : '#A9A4CF'" />
         </view>
         <text :class="['label', { active: current === tab.key }]">{{ tab.label }}</text>
       </view>
@@ -27,7 +27,7 @@
 import { onMounted } from 'vue'
 
 /**
- * 自绘底部导航：5 个位置，中间是凸起的黄色"记账"按钮（Neo-Brutalism 风格，对应原项目 AppNavigator）。
+ * 自绘底部导航：5 个位置，中间是凸起的珊瑚色"记账"按钮（黏土风格，对应原项目 AppNavigator）。
  * 原生 tabBar 仍保留在 pages.json 里（switchTab 需要它，并且能让各 tab 页面保持状态），这里把它隐藏。
  */
 defineProps({ current: { type: String, default: '' } })
@@ -55,7 +55,8 @@ const add = () => uni.navigateTo({ url: '/pages/bills/create' })
   bottom: 0;
   z-index: 999;
   background: $ln-card;
-  border-top: $ln-bw-thick solid $ln-stroke;
+  border-radius: $ln-r-lg $ln-r-lg 0 0;
+  box-shadow: 0 -10rpx 36rpx rgba(120, 100, 190, 0.18);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .ln-tabbar {
@@ -78,11 +79,10 @@ const add = () => uni.navigateTo({ url: '/pages/bills/create' })
   justify-content: center;
   width: 76rpx;
   height: 76rpx;
-  border: $ln-bw-thin solid transparent;
   border-radius: $ln-r-sm;
   &.active {
-    background: $ln-primary-light;
-    border-color: $ln-stroke;
+    background: $ln-sky;
+    @include clay-shadow(4rpx);
   }
 }
 .label {
@@ -101,16 +101,11 @@ const add = () => uni.navigateTo({ url: '/pages/bills/create' })
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 104rpx;
-  height: 104rpx;
-  margin-top: -44rpx;
-  background: $ln-accent;
-  border: $ln-bw-thick solid $ln-stroke;
-  border-radius: $ln-r-md;
-  box-shadow: 6rpx 6rpx 0 $ln-stroke;
-  &:active {
-    transform: translate(6rpx, 6rpx);
-    box-shadow: none;
-  }
+  width: 112rpx;
+  height: 112rpx;
+  margin-top: -52rpx;
+  background: #ff9a8b;
+  @include clay-box($ln-r-md, 8rpx);
+  @include clay-press(8rpx);
 }
 </style>

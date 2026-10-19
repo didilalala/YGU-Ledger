@@ -13,7 +13,7 @@
 
 <script setup>
 /**
- * 自绘导航栏：白底 + 底部粗黑线，标题居中加粗，左右各有一个带描边的图标按钮位。
+ * 自绘导航栏：透明融入背景，标题居中加粗，左侧是一颗圆润的黏土返回按钮。
  * 全局关闭了原生导航栏（pages.json 的 navigationStyle: custom），所有页面统一用它，H5 与 App 外观一致。
  */
 const props = defineProps({
@@ -35,8 +35,7 @@ function goBack() {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: $ln-card;
-  border-bottom: $ln-bw solid $ln-stroke;
+  background: $ln-bg;
 }
 .bar {
   position: relative;
@@ -52,7 +51,7 @@ function goBack() {
   right: 140rpx;
   text-align: center;
   font-size: 36rpx;
-  font-weight: 800;
+  font-weight: 900;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -73,6 +72,7 @@ function goBack() {
   width: 72rpx;
   height: 72rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
+  @include clay-press($ln-bw-thin);
 }
 </style>

@@ -31,7 +31,7 @@ AI 智能记账应用。参考项目 [GystuG/LiteNote](https://github.com/GystuG
 
 ## 界面
 
-界面复刻原项目的 **Neo-Brutalism（新粗野主义）** 设计：米色背景、粗黑描边、无模糊的实心偏移阴影、饱和糖果色、超粗字重、数字用等宽体；底部导航中间是凸起的黄色"记账"按钮。设计令牌在 `mobile/src/uni.scss`，通用组件在 `mobile/src/components/ln-*`。
+界面采用 **Claymorphism（黏土拟态）** 风格：淡紫背景、马卡龙粉彩、大圆角，卡片/按钮/图标像捏出来的黏土块（外部柔和投影 + 左上高光 + 内阴影），输入框和进度条槽是凹进去的；页面布局沿用原项目。底部导航中间是凸起的珊瑚色"记账"按钮。设计令牌在 `mobile/src/uni.scss`，通用组件在 `mobile/src/components/ln-*`。
 
 <p align="center">
   <img src="docs/screenshots/login.png" width="23%" alt="登录" />
@@ -120,7 +120,7 @@ App 端：用 HBuilderX 打开 `mobile/` 目录，运行到 Android 真机。真
 | AI 对话（流式 / 非流式、Claude·OpenAI·DeepSeek·Qwen 适配器、工具循环、会话标题与摘要） | ✅ 可用，有测试；未用真实厂商接口验证 |
 | AI 账单解析 `parse-bills`（旧接口） | ✅ 可用，有测试 |
 | UniApp 主干页面（登录 / 注册、首页、账单、记账、统计） | ✅ 可用 |
-| 界面复刻原项目（Neo-Brutalism）：自绘导航栏 / 底部导航、全部页面重做 | ✅ 已在 H5 浏览器里逐页渲染并与原项目截图对照；App 端未验证 |
+| 界面改为黏土拟态（Claymorphism）：自绘导航栏 / 底部导航、全部页面换肤 | ⚠️ 已编译通过，仅在 H5 浏览器里渲染过登录页；其余页面和 App 端未验证；`docs/screenshots` 仍是旧风格 |
 | UniApp AI 对话页（流式回复、账单卡片确认保存、历史会话） | ✅ 可用，未在真机验证 |
 | 语音输入（按住说话）、拍照 / 相册识别 | ⚠️ 已实现，未在真机 / 浏览器验证；ASR 需配置 `ASR_API_URL` / `ASR_API_KEY` |
 | UniApp 预算、财务目标、分类管理（列表 + 新建 / 编辑 / 删除） | ✅ 可用，未在真机验证 |
@@ -133,5 +133,10 @@ App 端：用 HBuilderX 打开 `mobile/` 目录，运行到 Android 真机。真
 | 通知监听 UTS 插件 | ⚠️ 骨架，未在 HBuilderX 中编译验证 |
 
 全局搜索 `TODO` 可以找到所有待实现的位置（目前只剩收据图片上传）。
+
+### 待办
+
+- [ ] 替换 `docs/screenshots` 里的界面截图为黏土拟态风格（需起后端并运行 `seed_demo`，逐页重拍并检查细节）
+- [ ] 在 H5 浏览器里逐页渲染检查黏土拟态样式（目前只看过登录页），再到真机验证
 
 各模块的验证程度、未验证项与已知局限见 [`验证状态清单.md`](./验证状态清单.md)。

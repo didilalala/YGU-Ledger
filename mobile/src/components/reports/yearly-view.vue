@@ -15,7 +15,7 @@
         <text class="row-month">{{ m.label }}</text>
         <text class="income mono">{{ m.income > 0 ? '+' + m.income.toFixed(2) : '' }}</text>
         <text class="expense mono">{{ m.expense > 0 ? '-' + m.expense.toFixed(2) : '' }}</text>
-        <ln-icon name="chevron-right" :size="32" color="#A3A3A3" />
+        <ln-icon name="chevron-right" :size="32" color="#A9A4CF" />
       </view>
     </view>
   </view>
@@ -86,7 +86,7 @@ defineExpose({ refresh: load })
   padding: 24rpx;
   margin: 0 8rpx 20rpx 0;
   background: $ln-card;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, $ln-bw-thin);
   &.disabled {
     opacity: 0.4;
   }

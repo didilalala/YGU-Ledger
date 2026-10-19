@@ -111,12 +111,12 @@ const cards = computed(() => {
   const budgetCards = pickBudgets(budgets.value, 3).map((b) => ({
     id: `budget-${b.id}`, url: '/pages/budget/index', icon: '📊', title: b.name, typeLabel: '预算',
     percent: Math.min(Math.round(b.percentage), 100),
-    color: b.isOverBudget ? '#EF4444' : '#3B82F6',
+    color: b.isOverBudget ? '#FF7A6E' : '#8F78E6',
     left: `已用 ¥${money(b.spent)}`, right: `剩余 ¥${money(Math.max(0, b.remaining))}`,
   }))
   const goalCards = pickGoals(goals.value, 3).map((g) => ({
     id: `goal-${g.id}`, url: '/pages/goal/index', icon: g.icon || '🎯', title: g.name, typeLabel: '目标',
-    percent: Math.round(g.progress), color: '#22C55E',
+    percent: Math.round(g.progress), color: '#5CC9A0',
     left: `已存 ¥${money(g.currentAmount)}`, right: `目标 ¥${money(g.targetAmount)}`,
   }))
   return [...budgetCards, ...goalCards]
@@ -162,8 +162,7 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
 }
 .title {
   font-size: 58rpx;
-  font-weight: 800;
-  letter-spacing: -1rpx;
+  font-weight: 900;
 }
 .sticker {
   font-size: 40rpx;
@@ -184,8 +183,7 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   margin-bottom: 48rpx;
   color: #fff;
   background: $ln-primary;
-  @include brutal-box($ln-r-lg, $ln-bw-thick);
-  @include brutal-shadow(12rpx);
+  @include clay-box($ln-r-lg, 14rpx);
 }
 .tape {
   position: absolute;
@@ -198,8 +196,8 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   height: 80rpx;
   font-size: 40rpx;
   background: $ln-accent;
-  transform: rotate(12deg);
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  transform: rotate(10deg);
+  @include clay-box($ln-r-sm, 6rpx);
 }
 .ov-label {
   display: block;
@@ -231,9 +229,9 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   align-items: center;
   gap: 16rpx;
   padding: 24rpx;
-  background: rgba(0, 0, 0, 0.15);
-  border: $ln-bw-thin solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.24);
   border-radius: $ln-r-md;
+  box-shadow: inset 6rpx 6rpx 14rpx rgba(70, 40, 160, 0.25), inset -6rpx -6rpx 14rpx rgba(255, 255, 255, 0.3);
 }
 .stat-icon {
   display: flex;
@@ -242,8 +240,7 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   flex-shrink: 0;
   width: 64rpx;
   height: 64rpx;
-  border: 3rpx solid rgba(255, 255, 255, 0.4);
-  border-radius: $ln-r-sm;
+  @include clay-box($ln-r-sm, 4rpx);
   &.expense-bg {
     background: $ln-error;
   }
@@ -255,7 +252,7 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   display: block;
   font-size: 22rpx;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
 }
 .stat-value {
   display: block;
@@ -276,8 +273,8 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   margin: 0 14rpx 0 0;
   padding: 28rpx 32rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(8rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(8rpx);
 }
 .pc-head {
   display: flex;
@@ -321,11 +318,12 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
 .dot {
   width: 16rpx;
   height: 16rpx;
-  background: $ln-card;
-  border: $ln-bw-thin solid $ln-stroke;
+  background: $ln-primary-light;
   border-radius: 50%;
   &.on {
-    background: $ln-accent;
+    width: 36rpx;
+    border-radius: 999rpx;
+    background: $ln-primary;
   }
 }
 .empty-card {
@@ -335,8 +333,8 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   padding: 40rpx;
   margin-bottom: 48rpx;
   background: $ln-card;
-  border: $ln-bw dashed $ln-stroke;
   border-radius: $ln-r-lg;
+  @include clay-inset(8rpx);
 }
 .empty-icon {
   font-size: 64rpx;
@@ -384,9 +382,9 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   font-size: 26rpx;
   font-weight: 700;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
-  @include brutal-shadow(4rpx);
-  @include brutal-press(4rpx);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
+  @include clay-shadow(4rpx);
+  @include clay-press(4rpx);
 }
 .empty-state {
   display: flex;
@@ -396,7 +394,7 @@ const goDetail = (bill) => go(`/pages/bills/detail?id=${bill.id}`)
   padding: 48rpx;
   margin-right: 8rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(8rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(8rpx);
 }
 </style>

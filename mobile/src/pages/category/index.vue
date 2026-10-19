@@ -63,12 +63,13 @@ function open(c) {
   width: calc((100% - 72rpx) / 4);
   padding: 24rpx 0 20rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, $ln-bw-thin);
   &:active {
     background: $ln-bg;
   }
   &.add {
-    border-style: dashed;
+    background: $ln-primary-light;
+    @include clay-inset(6rpx);
   }
 }
 .cat-icon {
@@ -78,7 +79,7 @@ function open(c) {
   width: 80rpx;
   height: 80rpx;
   font-size: 40rpx;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, 6rpx);
   &.add-icon {
     background: $ln-accent;
   }
@@ -100,8 +101,9 @@ function open(c) {
   font-size: 18rpx;
   font-weight: 800;
   background: $ln-primary-light;
-  border: 3rpx solid $ln-stroke;
-  border-radius: 10rpx;
+  color: $ln-primary-dark;
+  border-radius: 12rpx;
+  box-shadow: 0 4rpx 8rpx rgba(120, 100, 190, 0.25);
 }
 .tip {
   display: block;

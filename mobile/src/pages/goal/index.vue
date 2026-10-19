@@ -24,7 +24,7 @@
           </view>
           <text :class="['badge', { done: g.isCompleted }]">{{ Math.round(g.progress) }}%</text>
         </view>
-        <ln-progress :percent="g.progress" color="#22C55E" :height="28" />
+        <ln-progress :percent="g.progress" color="#5CC9A0" :height="28" />
         <view class="amounts mono">
           <text>已存 ¥{{ formatMoney(g.currentAmount) }}</text>
           <text class="muted-text">目标 ¥{{ formatMoney(g.targetAmount) }}</text>
@@ -73,14 +73,16 @@ const edit = (id) => uni.navigateTo({ url: `/pages/goal/edit${id ? `?id=${id}` :
   width: 72rpx;
   height: 72rpx;
   background: $ln-accent;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
+  @include clay-press($ln-bw-thin);
 }
 .summary {
   display: flex;
   align-items: center;
   padding: 24rpx 0;
+  margin: 8rpx 32rpx 0;
   background: $ln-card;
-  border-bottom: $ln-bw-thin solid $ln-stroke;
+  @include clay-box($ln-r-lg, 8rpx);
 }
 .s-item {
   flex: 1;
@@ -112,9 +114,9 @@ const edit = (id) => uni.navigateTo({ url: `/pages/goal/edit${id ? `?id=${id}` :
   padding: 32rpx;
   margin: 0 8rpx 36rpx 0;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(8rpx);
-  @include brutal-press(8rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(8rpx);
+  @include clay-press(8rpx);
 }
 .g-head {
   display: flex;
@@ -137,7 +139,7 @@ const edit = (id) => uni.navigateTo({ url: `/pages/goal/edit${id ? `?id=${id}` :
   height: 88rpx;
   font-size: 42rpx;
   background: $ln-accent;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, $ln-bw-thin);
 }
 .g-name {
   display: block;

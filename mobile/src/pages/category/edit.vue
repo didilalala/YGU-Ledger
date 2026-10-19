@@ -90,9 +90,9 @@ async function remove() {
   text-align: center;
   font-size: 40rpx;
   padding: 12rpx 0;
-  border-radius: 12rpx;
+  border-radius: $ln-r-sm;
   &.on {
-    background: rgba(79, 110, 247, 0.15);
+    background: $ln-primary-light;
   }
 }
 </style>

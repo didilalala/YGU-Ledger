@@ -96,7 +96,7 @@ function remove() {
   padding: 48rpx;
   margin-bottom: 32rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg, $ln-bw-thin);
+  @include clay-box($ln-r-lg, 10rpx);
 }
 .icon-block {
   display: flex;
@@ -106,14 +106,14 @@ function remove() {
   height: 128rpx;
   margin-bottom: 24rpx;
   font-size: 64rpx;
-  @include brutal-box($ln-r-md);
+  @include clay-box($ln-r-md, 8rpx);
 }
 .type-badge {
   padding: 4rpx 24rpx;
   margin-bottom: 16rpx;
   font-size: 26rpx;
   font-weight: 800;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
   &.expense {
     color: $ln-expense;
     background: $ln-expense-bg;
@@ -126,8 +126,7 @@ function remove() {
 .amount {
   margin-bottom: 16rpx;
   font-size: 80rpx;
-  font-weight: 800;
-  letter-spacing: -2rpx;
+  font-weight: 900;
   &.expense {
     color: $ln-expense;
   }
@@ -144,8 +143,8 @@ function remove() {
   overflow: hidden;
   margin-right: 6rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
-  @include brutal-shadow(6rpx);
+  @include clay-box($ln-r-lg);
+  @include clay-shadow(6rpx);
 }
 .row {
   display: flex;
@@ -168,7 +167,7 @@ function remove() {
 .divider {
   height: $ln-bw-thin;
   margin: 0 32rpx;
-  background: $ln-stroke;
+  background: $ln-divider;
 }
 .tags {
   display: flex;
@@ -181,7 +180,7 @@ function remove() {
   font-size: 24rpx;
   font-weight: 700;
   background: $ln-accent;
-  @include brutal-box(12rpx, 3rpx);
+  @include clay-box(16rpx, 3rpx);
 }
 .bottom-actions {
   position: fixed;
@@ -193,15 +192,14 @@ function remove() {
   gap: 24rpx;
   padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
   background: $ln-card;
-  border-top: $ln-bw-thin solid $ln-stroke;
+  border-radius: $ln-r-lg $ln-r-lg 0 0;
+  box-shadow: 0 -10rpx 36rpx rgba(120, 100, 190, 0.18);
   .btn {
     flex: 1;
   }
   .del {
     color: $ln-error;
-    background: rgba(239, 68, 68, 0.08);
-    border-color: $ln-error;
-    box-shadow: none;
+    background: $ln-expense-bg;
   }
 }
 </style>

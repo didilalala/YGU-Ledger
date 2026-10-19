@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import { categoryColor, fallbackIcon } from '../src/utils/category-style.js'
 
 test('常用分类使用固定颜色', () => {
-  assert.equal(categoryColor('餐饮'), '#FACC15')
-  assert.equal(categoryColor('交通'), '#3B82F6')
-  assert.equal(categoryColor('工资'), '#22C55E')
+  assert.equal(categoryColor('餐饮'), '#FFD86B')
+  assert.equal(categoryColor('交通'), '#8FC0FA')
+  assert.equal(categoryColor('工资'), '#7ADBB0')
 })
 
 test('自定义分类：同名稳定同色，且来自调色板', () => {
@@ -17,8 +17,8 @@ test('自定义分类：同名稳定同色，且来自调色板', () => {
 })
 
 test('未分类为灰色，默认图标按收支区分', () => {
-  assert.equal(categoryColor(null), '#E5E5E5')
-  assert.equal(categoryColor(''), '#E5E5E5')
+  assert.equal(categoryColor(null), '#E8E2F8')
+  assert.equal(categoryColor(''), '#E8E2F8')
   assert.equal(fallbackIcon('income'), '💰')
   assert.equal(fallbackIcon('expense'), '📝')
 })

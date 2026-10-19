@@ -97,7 +97,7 @@ async function save() {
   height: 144rpx;
   overflow: hidden;
   background: $ln-accent;
-  @include brutal-box($ln-r-md);
+  @include clay-box($ln-r-md, 8rpx);
 }
 .avatar {
   width: 100%;

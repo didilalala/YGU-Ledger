@@ -2,7 +2,7 @@
   <view class="page">
     <ln-navbar title="AI 助手" :back="false">
       <template #left><view class="nav-icon" @click="goSessions"><ln-icon name="menu" :size="44" /></view></template>
-      <template #right><view class="nav-icon" @click="newChat"><ln-icon name="square-pen" :size="44" color="#3B82F6" /></view></template>
+      <template #right><view class="nav-icon" @click="newChat"><ln-icon name="square-pen" :size="44" color="#8F78E6" /></view></template>
     </ln-navbar>
 
     <scroll-view class="messages" scroll-y :scroll-into-view="scrollTarget" scroll-with-animation>
@@ -29,7 +29,7 @@
             <view v-if="m.thinking" class="bubble ai-bubble think" @click="m.showThinking = !m.showThinking">
               <view class="think-head">
                 <text class="think-title">{{ m.pending && !m.content ? '思考中…' : thinkingText(m.thinkingMs) }}</text>
-                <ln-icon name="chevron-down" :size="30" color="#737373" />
+                <ln-icon name="chevron-down" :size="30" color="#6F6A9C" />
               </view>
               <text v-if="m.showThinking" class="think-body">{{ m.thinking }}</text>
             </view>
@@ -72,10 +72,10 @@
                 </view>
               </view>
               <view v-if="!b.saved" class="bill-actions">
-                <view class="mini-btn edit" @click="editBill(m, b)"><ln-icon name="pencil" :size="28" color="#3B82F6" /><text>修改</text></view>
-                <view class="mini-btn del" @click="removeBill(m, b)"><ln-icon name="trash" :size="28" color="#EF4444" /><text>删除</text></view>
+                <view class="mini-btn edit" @click="editBill(m, b)"><ln-icon name="pencil" :size="28" color="#8F78E6" /><text>修改</text></view>
+                <view class="mini-btn del" @click="removeBill(m, b)"><ln-icon name="trash" :size="28" color="#FF7A6E" /><text>删除</text></view>
               </view>
-              <view v-else class="saved-tag"><ln-icon name="check" :size="28" color="#16A34A" :stroke="3" /><text>已保存</text></view>
+              <view v-else class="saved-tag"><ln-icon name="check" :size="28" color="#2A9D76" :stroke="3" /><text>已保存</text></view>
             </view>
           </view>
         </template>
@@ -98,7 +98,7 @@
     </view>
 
     <view class="composer">
-      <view v-if="pendingImages.length < MAX_IMAGES" class="media-btn" @click="chooseImage"><ln-icon name="camera" :size="44" color="#3B82F6" /></view>
+      <view v-if="pendingImages.length < MAX_IMAGES" class="media-btn" @click="chooseImage"><ln-icon name="camera" :size="44" color="#8F78E6" /></view>
       <view v-if="voiceMode" :class="['hold', { active: voice.state !== 'idle', cancel: voice.willCancel }]" @touchstart.prevent="onHoldStart"
         @touchmove.prevent="onHoldMove" @touchend.prevent="onHoldEnd" @touchcancel.prevent="onHoldCancel">
         <text>{{ holdLabel }}</text>
@@ -107,7 +107,7 @@
         <input v-model="input" class="input" placeholder="点击输入文字" placeholder-class="ph" confirm-type="send" @confirm="send" />
       </view>
       <view v-if="hasInput && !voiceMode" :class="['send-btn', { off: !canSend }]" @click="send"><ln-icon name="send" :size="40" color="#fff" /></view>
-      <view v-else class="media-btn" @click="toggleVoiceMode"><ln-icon :name="voiceMode ? 'keyboard' : 'mic'" :size="44" color="#3B82F6" /></view>
+      <view v-else class="media-btn" @click="toggleVoiceMode"><ln-icon :name="voiceMode ? 'keyboard' : 'mic'" :size="44" color="#8F78E6" /></view>
     </view>
 
     <bill-edit-sheet :visible="editing.visible" :bill="editing.bill" :categories="categoryStore.list" @close="editing.visible = false" @save="onEdited" />
@@ -420,7 +420,7 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   font-weight: 600;
   color: $ln-text-secondary;
   background: $ln-card;
-  @include brutal-box($ln-r-lg, $ln-bw-thin);
+  @include clay-box($ln-r-lg, 8rpx);
 }
 .row {
   display: flex;
@@ -463,19 +463,20 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  @include brutal-box($ln-r-lg, $ln-bw-thin);
+  @include clay-box($ln-r-lg, 6rpx);
 }
 .user-bubble {
   color: #fff;
   background: $ln-primary;
-  border-bottom-right-radius: 8rpx;
+  border-bottom-right-radius: 12rpx;
+  text-shadow: 0 2rpx 0 rgba(70, 40, 160, 0.3);
 }
 .ai-bubble {
   background: $ln-card;
-  border-bottom-left-radius: 8rpx;
+  border-bottom-left-radius: 12rpx;
   &.error {
-    color: #d32f2f;
-    background: #ffebee;
+    color: $ln-expense;
+    background: $ln-expense-bg;
   }
 }
 .thumbs {
@@ -488,8 +489,8 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
 .thumb {
   width: 200rpx;
   height: 200rpx;
-  border: $ln-bw-thin solid $ln-stroke;
-  border-radius: $ln-r-sm;
+  border-radius: $ln-r-md;
+  @include clay-shadow(4rpx);
 }
 .think {
   font-size: 26rpx;
@@ -521,7 +522,7 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
 }
 .stats-box {
   padding: 8rpx 24rpx;
-  background: #f5f5f5;
+  background: $ln-primary-light;
   border-radius: $ln-r-md;
 }
 .stats-row {
@@ -529,7 +530,7 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   align-items: center;
   justify-content: space-between;
   padding: 16rpx 0;
-  border-bottom: 2rpx solid #e0e0e0;
+  border-bottom: 2rpx solid $ln-divider;
   &:last-child {
     border-bottom: none;
   }
@@ -553,7 +554,7 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   align-items: center;
   gap: 16rpx;
   padding: 12rpx 0;
-  border-bottom: 2rpx solid #e0e0e0;
+  border-bottom: 2rpx solid $ln-divider;
   font-size: 26rpx;
   font-weight: 500;
 }
@@ -585,15 +586,14 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
 }
 .bill-card {
   padding: 24rpx;
-  border: 2rpx solid;
   border-radius: $ln-r-md;
-  box-shadow: 4rpx 4rpx 0 rgba(0, 0, 0, 0.12);
+  @include clay-shadow(6rpx);
 }
 .bill-date {
   display: block;
   margin-bottom: 16rpx;
   font-size: 24rpx;
-  color: #666;
+  color: $ln-text-secondary;
 }
 .bill-main {
   display: flex;
@@ -623,7 +623,7 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   display: block;
   font-size: 26rpx;
   font-weight: 500;
-  color: #666;
+  color: $ln-text-secondary;
 }
 .bill-amount {
   font-size: 36rpx;
@@ -642,15 +642,13 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   font-size: 26rpx;
   font-weight: 600;
   background: #fff;
-  border: 2rpx solid;
-  border-radius: $ln-r-sm;
+  @include clay-box($ln-r-sm, 4rpx);
+  @include clay-press(4rpx);
   &.edit {
     color: $ln-primary;
-    border-color: $ln-primary;
   }
   &.del {
     color: $ln-error;
-    border-color: $ln-error;
   }
 }
 .saved-tag {
@@ -672,8 +670,7 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   align-items: center;
   justify-content: space-between;
   padding: 16rpx 32rpx;
-  background: rgba(59, 130, 246, 0.1);
-  border-top: $ln-bw-thin solid $ln-stroke;
+  background: $ln-primary-light;
 }
 .pending-text {
   font-size: 28rpx;
@@ -689,7 +686,8 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   font-weight: 700;
   color: #fff;
   background: $ln-primary;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, 6rpx);
+  @include clay-press(6rpx);
 }
 
 /* 待发送图片 */
@@ -698,7 +696,6 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   gap: 16rpx;
   padding: 16rpx 24rpx;
   background: $ln-card;
-  border-top: $ln-bw-thin solid $ln-stroke;
 }
 .pi-item {
   position: relative;
@@ -707,8 +704,8 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
 .pi-thumb {
   width: 144rpx;
   height: 144rpx;
-  border: $ln-bw-thin solid $ln-stroke;
-  border-radius: $ln-r-sm;
+  border-radius: $ln-r-md;
+  @include clay-shadow(4rpx);
 }
 .pi-remove {
   position: absolute;
@@ -719,8 +716,9 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   justify-content: center;
   width: 40rpx;
   height: 40rpx;
-  background: rgba(0, 0, 0, 0.7);
+  background: $ln-error;
   border-radius: 50%;
+  @include clay-shadow(2rpx);
 }
 
 /* 输入栏 */
@@ -730,7 +728,8 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   gap: 16rpx;
   padding: 24rpx;
   background: $ln-card;
-  border-top: $ln-bw-thin solid $ln-stroke;
+  border-radius: $ln-r-lg $ln-r-lg 0 0;
+  box-shadow: 0 -10rpx 36rpx rgba(120, 100, 190, 0.18);
 }
 .media-btn,
 .send-btn {
@@ -740,11 +739,9 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   flex-shrink: 0;
   width: 96rpx;
   height: 96rpx;
-  background: $ln-bg;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
-  &:active {
-    background: $ln-accent;
-  }
+  background: $ln-primary-light;
+  @include clay-box($ln-r-md, 6rpx);
+  @include clay-press(6rpx);
 }
 .send-btn {
   background: $ln-success;
@@ -760,7 +757,8 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   min-height: 96rpx;
   padding: 0 28rpx;
   background: $ln-bg;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
 }
 .input {
   width: 100%;
@@ -779,9 +777,9 @@ const hasInput = computed(() => !!input.value.trim() || pendingImages.value.leng
   justify-content: center;
   font-size: 30rpx;
   font-weight: 800;
-  background: $ln-bg;
+  background: $ln-primary-light;
   user-select: none;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, 6rpx);
   &.active {
     color: #fff;
     background: $ln-primary;

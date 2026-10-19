@@ -19,12 +19,12 @@
           <view class="icon-box" :style="{ background: item.color }"><ln-icon :name="item.icon" :size="38" /></view>
           <text class="item-label">{{ item.label }}</text>
         </view>
-        <ln-icon name="chevron-right" :size="38" color="#737373" />
+        <ln-icon name="chevron-right" :size="38" color="#6F6A9C" />
       </view>
     </view>
 
     <view class="logout" @click="userStore.logout()">
-      <ln-icon name="log-out" :size="38" color="#EF4444" />
+      <ln-icon name="log-out" :size="38" color="#FF7A6E" />
       <text>退出登录</text>
     </view>
 
@@ -58,25 +58,25 @@ const groups = [
   {
     title: '💰 财务',
     items: [
-      { label: '账户管理', icon: 'credit-card', color: '#7DCEA0', action: () => go('/pages/account/index') },
-      { label: '预算管理', icon: 'wallet', color: '#FFD93D', action: () => go('/pages/budget/index') },
-      { label: '财务目标', icon: 'target', color: '#FF90B3', action: () => go('/pages/goal/index') },
-      { label: '分类管理', icon: 'folder', color: '#FFB366', action: () => go('/pages/category/index') },
+      { label: '账户管理', icon: 'credit-card', color: '#7ADBB0', action: () => go('/pages/account/index') },
+      { label: '预算管理', icon: 'wallet', color: '#FFD86B', action: () => go('/pages/budget/index') },
+      { label: '财务目标', icon: 'target', color: '#FF9EC4', action: () => go('/pages/goal/index') },
+      { label: '分类管理', icon: 'folder', color: '#FFAE7A', action: () => go('/pages/category/index') },
     ],
   },
   {
     title: '⚙️ 应用',
     items: [
-      { label: 'AI 模型配置', icon: 'message-circle', color: '#7EB6FF', action: () => go('/pages/ai/config') },
+      { label: 'AI 模型配置', icon: 'message-circle', color: '#8FC0FA', action: () => go('/pages/ai/config') },
       // #ifdef APP-PLUS
-      { label: '通知自动记账', icon: 'bell', color: '#FFD93D', action: () => go('/pages/mine/notification') },
+      { label: '通知自动记账', icon: 'bell', color: '#FFD86B', action: () => go('/pages/mine/notification') },
       // #endif
-      { label: '修改密码', icon: 'lock', color: '#C5A3FF', action: () => go('/pages/mine/password') },
+      { label: '修改密码', icon: 'lock', color: '#B79CF5', action: () => go('/pages/mine/password') },
     ],
   },
   {
     title: 'ℹ️ 关于',
-    items: [{ label: '检测升级', icon: 'download', color: '#FFB366', action: () => checkUpdate() }],
+    items: [{ label: '检测升级', icon: 'download', color: '#FFAE7A', action: () => checkUpdate() }],
   },
 ]
 </script>
@@ -91,10 +91,8 @@ const groups = [
   gap: 24rpx;
   padding: 32rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg, $ln-bw-thin);
-  @include brutal-shadow(6rpx);
-  @include brutal-press(6rpx);
-  margin-right: 6rpx;
+  @include clay-box($ln-r-lg, 10rpx);
+  @include clay-press(10rpx);
 }
 .avatar-box {
   display: flex;
@@ -104,7 +102,7 @@ const groups = [
   height: 128rpx;
   overflow: hidden;
   background: $ln-accent;
-  @include brutal-box($ln-r-md);
+  @include clay-box($ln-r-md, 8rpx);
 }
 .avatar {
   width: 100%;
@@ -143,10 +141,8 @@ const groups = [
   padding: 16rpx 24rpx;
   margin-bottom: 16rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg, $ln-bw-thin);
-  &:active {
-    background: $ln-bg;
-  }
+  @include clay-box($ln-r-lg, 6rpx);
+  @include clay-press(6rpx);
 }
 .item-left {
   display: flex;
@@ -159,7 +155,7 @@ const groups = [
   justify-content: center;
   width: 80rpx;
   height: 80rpx;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, 6rpx);
 }
 .item-label {
   font-size: 30rpx;
@@ -175,9 +171,9 @@ const groups = [
   font-size: 30rpx;
   font-weight: 800;
   color: $ln-error;
-  background: rgba(239, 68, 68, 0.08);
-  border: $ln-bw-thin solid $ln-error;
-  border-radius: $ln-r-md;
+  background: $ln-expense-bg;
+  @include clay-box($ln-r-md, 6rpx);
+  @include clay-press(6rpx);
 }
 .version {
   display: flex;

@@ -5,10 +5,10 @@
 import uCharts from '@qiun/ucharts'
 
 export const COLORS = {
-  expense: '#e5484d',
-  income: '#16a34a',
+  expense: '#ff7a6e',
+  income: '#5cc9a0',
   // 饼图调色板，对比度够的 8 种颜色循环使用
-  palette: ['#4f6ef7', '#f59e0b', '#16a34a', '#e5484d', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'],
+  palette: ['#8f78e6', '#ffd86b', '#5cc9a0', '#ff7a6e', '#8fc0fa', '#ff9ec4', '#ffae7a', '#7fd8e8'],
 }
 
 const MAX_SLICES = 8
@@ -97,8 +97,8 @@ export function buildChartOptions({ type, categories, series, width, height, pix
       ...base,
       ...(center && type === 'ring'
         ? {
-            title: { name: center.title, fontSize: 14, color: '#1A1A1A', offsetY: -4 },
-            subtitle: { name: center.subtitle || '', fontSize: 10, color: '#737373', offsetY: 8 },
+            title: { name: center.title, fontSize: 14, color: '#2F2A5C', offsetY: -4 },
+            subtitle: { name: center.subtitle || '', fontSize: 10, color: '#6F6A9C', offsetY: 8 },
           }
         : {}),
       padding: [5, 5, 5, 5],
@@ -116,7 +116,7 @@ export function buildChartOptions({ type, categories, series, width, height, pix
     dataLabel: false,
     dataPointShape: type === 'line' || type === 'area',
     xAxis: { disableGrid: true, labelCount: 6, fontSize: 11, boundaryGap: type === 'column' ? 'justify' : 'center' },
-    yAxis: { gridType: 'dash', dashLength: 4, gridColor: '#e8e9ee', splitNumber: 4, data: [{ min: 0, fontSize: 11 }] },
+    yAxis: { gridType: 'dash', dashLength: 4, gridColor: '#e8e2f8', splitNumber: 4, data: [{ min: 0, fontSize: 11 }] },
     extra: {
       line: { type: 'curve', width: 2, activeType: 'hollow' },
       area: { type: 'curve', opacity: 0.3, addLine: true, width: 3, gradient: true },

@@ -74,67 +74,87 @@ $uni-color-subtitle: #555; // 二级标题颜色
 $uni-font-size-subtitle: 18px;
 $uni-color-paragraph: #3f536e; // 文章段落颜色
 $uni-font-size-paragraph: 15px;
-/* ========== LiteNote 主题：Neo-Brutalism（新粗野主义） ==========
- * 复刻原项目 litenote-mobile-app/src/theme：米色背景 + 粗黑描边 + 实心偏移阴影（无模糊）+ 饱和糖果色 + 超粗字重。
- * 原项目的单位是 dp，这里按 1dp ≈ 2rpx 换算（描边 3dp → 6rpx，阴影偏移 4dp → 8rpx）。
+/* ========== LiteNote 主题：Claymorphism（黏土拟态） ==========
+ * 软 3D、圆润、可爱：淡紫背景 + 马卡龙粉彩 + 大圆角，元素像捏出来的黏土块。
+ * 立体感由三层阴影叠出来：外部柔和投影（浮起）、左上白色高光、右下内阴影（体积）。
  * 页面 <style lang="scss"> 中可直接使用以下变量和 mixin。
  */
 
-/* 主色与糖果色 */
-$ln-primary: #3b82f6; // 电光蓝
-$ln-primary-light: #dbeafe;
-$ln-primary-dark: #1d4ed8;
-$ln-accent: #facc15; // 明黄：选中态、主要强调
-$ln-purple: #a855f7;
-$ln-pink: #ec4899;
-$ln-orange: #f97316;
-$ln-cyan: #06b6d4;
-$ln-lime: #84cc16;
-$ln-success: #22c55e;
-$ln-error: #ef4444;
+/* 主色与粉彩色 */
+$ln-primary: #8f78e6; // 薰衣草紫
+$ln-primary-light: #e7e0fd;
+$ln-primary-dark: #6f57cf;
+$ln-accent: #ffd86b; // 奶黄：选中态、主要强调
+$ln-purple: #b79cf5;
+$ln-pink: #ff9ec4;
+$ln-orange: #ffae7a;
+$ln-cyan: #7fd8e8;
+$ln-lime: #b6e57a;
+$ln-success: #5cc9a0; // 薄荷
+$ln-error: #ff7a6e; // 珊瑚
+$ln-sky: #8fc0fa;
 
 /* 收支：文字用深一档的颜色，底色用浅色块 */
-$ln-income: #16a34a;
-$ln-income-bg: #dcfce7;
-$ln-expense: #dc2626;
-$ln-expense-bg: #fee2e2;
+$ln-income: #2a9d76;
+$ln-income-bg: #d9f6ea;
+$ln-expense: #e0564d;
+$ln-expense-bg: #ffe3e0;
 
-/* 中性色 */
-$ln-stroke: #1a1a1a; // 描边与阴影
-$ln-bg: #fef9ef; // 暖白背景
+/* 中性色：带一点紫的灰，和背景同一色相 */
+$ln-stroke: #2f2a5c; // 深靛色：文字、图标
+$ln-bg: #f4f0ff; // 淡紫背景
 $ln-card: #ffffff;
-$ln-text: #1a1a1a;
-$ln-text-secondary: #737373;
-$ln-text-quaternary: #a3a3a3;
-$ln-border: #e5e5e5; // 浅色分割线
+$ln-text: #2f2a5c;
+$ln-text-secondary: #6f6a9c;
+$ln-text-quaternary: #a9a4cf;
+$ln-border: #e8e2f8; // 浅色分割线
+$ln-divider: #ece6fb;
 
-/* 描边、圆角、阴影 */
+/* 阴影用的颜色 */
+$ln-shade: rgba(120, 100, 190, 0.28); // 外部投影
+$ln-shade-in: rgba(70, 50, 150, 0.16); // 右下内阴影
+$ln-light: rgba(255, 255, 255, 0.95); // 高光
+
+/* 圆角；$ln-bw* 现在表示黏土的"厚度"（阴影深度），小元素用 thin，大块用 thick */
 $ln-bw-thin: 4rpx;
 $ln-bw: 6rpx;
-$ln-bw-thick: 8rpx;
-$ln-r-sm: 16rpx;
-$ln-r-md: 24rpx;
-$ln-r-lg: 32rpx;
+$ln-bw-thick: 10rpx;
+$ln-r-sm: 24rpx;
+$ln-r-md: 36rpx;
+$ln-r-lg: 48rpx;
 
-/* 字体：数字、日期等"元信息"用等宽体，是原项目的特色 */
-$ln-font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
-$ln-mono: Courier, 'Courier New', 'Droid Sans Mono', monospace;
+/* 字体：圆体优先；数字、日期沿用同一套字体 */
+$ln-font: ui-rounded, 'SF Pro Rounded', 'Nunito', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+$ln-mono: $ln-font;
 
-/* 实心偏移阴影（Neo-Brutalism 的核心） */
-@mixin brutal-shadow($offset: 8rpx, $color: $ln-stroke) {
-  box-shadow: $offset $offset 0 $color;
+/* 黏土阴影：$depth 越大浮得越高 */
+@mixin clay-shadow($depth: 8rpx) {
+  box-shadow:
+    $depth * 1.2 $depth * 1.4 $depth * 3 $ln-shade,
+    (-$depth) (-$depth) $depth * 2.4 $ln-light,
+    inset (-$depth * 0.7) (-$depth * 0.9) $depth * 1.6 $ln-shade-in,
+    inset ($depth * 0.7) ($depth * 0.7) $depth * 1.6 rgba(255, 255, 255, 0.65);
 }
 
-/* 带描边的块：卡片、按钮、输入框共用 */
-@mixin brutal-box($radius: $ln-r-lg, $width: $ln-bw) {
-  border: $width solid $ln-stroke;
+/* 凹进去的黏土：输入框、进度条的槽 */
+@mixin clay-inset($depth: 6rpx) {
+  box-shadow:
+    inset $depth $depth $depth * 2 rgba(120, 100, 190, 0.28),
+    inset (-$depth) (-$depth) $depth * 2 $ln-light;
+}
+
+/* 圆润的黏土块：卡片、按钮、输入框共用 */
+@mixin clay-box($radius: $ln-r-lg, $depth: 8rpx) {
+  border: 0;
   border-radius: $radius;
+  @include clay-shadow($depth);
 }
 
-/* 按下时向阴影方向平移并去掉阴影，模拟"被按下去" */
-@mixin brutal-press($offset: 8rpx) {
+/* 按下时像捏扁一点：缩小并压低阴影 */
+@mixin clay-press($depth: 8rpx) {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   &:active {
-    transform: translate($offset, $offset);
-    box-shadow: 0 0 0 $ln-stroke;
+    transform: scale(0.95);
+    @include clay-shadow($depth * 0.4);
   }
 }

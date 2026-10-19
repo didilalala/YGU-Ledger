@@ -14,7 +14,7 @@
         <text class="row-day">{{ d.day }}日</text>
         <text class="income mono">{{ d.income > 0 ? '+' + d.income.toFixed(2) : '' }}</text>
         <text class="expense mono">{{ d.expense > 0 ? '-' + d.expense.toFixed(2) : '' }}</text>
-        <ln-icon name="chevron-right" :size="32" color="#A3A3A3" />
+        <ln-icon name="chevron-right" :size="32" color="#A9A4CF" />
       </view>
       <view v-if="!days.length" class="empty-tip">该月暂无记录</view>
     </view>
@@ -108,7 +108,7 @@ defineExpose({ refresh: () => Promise.all([loadYear(), loadDays()]) })
   padding: 24rpx;
   margin: 0 8rpx 20rpx 0;
   background: $ln-card;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  @include clay-box($ln-r-md, $ln-bw-thin);
   &:active {
     background: $ln-bg;
   }

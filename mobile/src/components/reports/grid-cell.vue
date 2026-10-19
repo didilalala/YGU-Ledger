@@ -35,16 +35,16 @@ defineEmits(['press'])
   min-height: 100%;
   padding: 4rpx 2rpx;
   background: $ln-card;
-  border: $ln-bw-thin solid $ln-stroke;
-  border-radius: $ln-r-sm;
+  @include clay-box($ln-r-sm, 4rpx);
   &.current:not(.selected) {
-    border-color: $ln-primary;
+    background: $ln-primary-light;
     .label {
       font-weight: 900;
     }
   }
   &.selected {
     background: $ln-primary;
+    @include clay-shadow(6rpx);
     .label,
     .income-text,
     .expense-text {
@@ -56,7 +56,6 @@ defineEmits(['press'])
   }
   &.disabled {
     opacity: 0.4;
-    border-color: $ln-text-quaternary;
   }
 }
 .label {

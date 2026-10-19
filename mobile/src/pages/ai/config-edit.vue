@@ -33,7 +33,7 @@
           <text class="label">支持图片识别</text>
           <text class="hint">此服务商支持图片</text>
         </view>
-        <switch :checked="form.supportsVision" color="#3B82F6" @change="form.supportsVision = $event.detail.value" />
+        <switch :checked="form.supportsVision" color="#8F78E6" @change="form.supportsVision = $event.detail.value" />
       </view>
     </view>
 
@@ -129,10 +129,10 @@ async function save() {
   gap: 12rpx;
   padding: 16rpx 24rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
   &.selected {
     background: $ln-accent;
-    border-width: $ln-bw;
+    @include clay-shadow(8rpx);
   }
 }
 .p-logo {
@@ -153,7 +153,6 @@ async function save() {
   gap: 24rpx;
   padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
   background: $ln-bg;
-  border-top: $ln-bw-thin solid $ln-stroke;
   .btn {
     flex: 1;
     &.disabled {

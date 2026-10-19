@@ -152,8 +152,9 @@ async function save() {
   width: 62%;
   margin: 0 auto 40rpx;
   padding: 8rpx;
-  background: $ln-card;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  background: $ln-primary-light;
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
 }
 .type-btn {
   flex: 1;
@@ -162,13 +163,12 @@ async function save() {
   font-size: 32rpx;
   font-weight: 700;
   color: $ln-text-secondary;
-  border: $ln-bw-thin solid transparent;
   border-radius: $ln-r-sm;
   &.expense,
   &.income {
     color: #fff;
     font-weight: 800;
-    border-color: $ln-stroke;
+    @include clay-shadow(4rpx);
   }
   &.expense {
     background: $ln-error;
@@ -192,7 +192,8 @@ async function save() {
   gap: 16rpx;
   padding: 32rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-lg);
+  border-radius: $ln-r-lg;
+  @include clay-inset(8rpx);
 }
 .currency {
   font-size: 56rpx;
@@ -220,10 +221,10 @@ async function save() {
   width: calc((100% - 60rpx) / 4);
   aspect-ratio: 1;
   background: $ln-card;
-  @include brutal-box($ln-r-sm, $ln-bw-thin);
+  @include clay-box($ln-r-sm, $ln-bw-thin);
   &.selected {
     background: $ln-accent;
-    border-width: $ln-bw;
+    @include clay-shadow(8rpx);
   }
 }
 .cat-icon {
@@ -246,7 +247,8 @@ async function save() {
   font-size: 30rpx;
   font-weight: 700;
   background: $ln-card;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
   &.between {
     justify-content: space-between;
   }
@@ -258,7 +260,8 @@ async function save() {
   font-size: 30rpx;
   font-weight: 600;
   background: $ln-card;
-  @include brutal-box($ln-r-md, $ln-bw-thin);
+  border-radius: $ln-r-md;
+  @include clay-inset(6rpx);
 }
 .bottom-actions {
   position: fixed;
@@ -270,7 +273,6 @@ async function save() {
   gap: 24rpx;
   padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
   background: $ln-bg;
-  border-top: $ln-bw-thin solid $ln-stroke;
   .btn {
     flex: 1;
     &.disabled {

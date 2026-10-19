@@ -28,7 +28,7 @@
       </view>
       <view class="form-field row">
         <text class="label">启用</text>
-        <switch :checked="form.isActive" color="#4f6ef7" @change="form.isActive = $event.detail.value" />
+        <switch :checked="form.isActive" color="#8f78e6" @change="form.isActive = $event.detail.value" />
       </view>
     </view>
     <view class="form-actions">

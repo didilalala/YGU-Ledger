@@ -3,7 +3,7 @@
     <view class="arrow" @click="$emit('prev')"><ln-icon name="chevron-left" :size="40" /></view>
     <text class="title">{{ title }}</text>
     <view :class="['arrow', { disabled: disableNext }]" @click="!disableNext && $emit('next')">
-      <ln-icon name="chevron-right" :size="40" :color="disableNext ? '#A3A3A3' : '#1A1A1A'" />
+      <ln-icon name="chevron-right" :size="40" :color="disableNext ? '#A9A4CF' : '#2F2A5C'" />
     </view>
   </view>
 </template>
@@ -31,10 +31,10 @@ defineEmits(['prev', 'next'])
   width: 96rpx;
   height: 96rpx;
   background: $ln-card;
-  @include brutal-box($ln-r-md);
+  @include clay-box($ln-r-md);
   &.disabled {
-    background: transparent;
-    border-color: $ln-border;
+    background: $ln-primary-light;
+    box-shadow: none;
   }
   &:not(.disabled):active {
     background: $ln-accent;
